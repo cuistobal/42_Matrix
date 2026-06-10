@@ -5,13 +5,14 @@
 #include <format>
 #include <ostream>
 #include <iostream>
+#include <concepts>
+#include <type_traits>
 
 template <typename T>
+//concept Numeric = std::integral<T> || std::floating_point<T>;
 class Matrix {
   public:
 
-//    using Matrix = std::vector<std::vector<T> >;
-//    using matrix = std::vector<std::vector<T> >;
     using Dataset = std::initializer_list<std::initializer_list<T> >;
 
     Matrix() = delete;
@@ -28,6 +29,15 @@ class Matrix {
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& src) {
       return os << std::format("{}", src);
     };
+
+    // Exercice 00
+//    add(const Matrix<U>& other);
+//    substract(const Matrix<U>& other);
+//    scale(const U& scalar);
+//
+//    add(const Matrix<U>& other);
+//    substract(const Matrix<U>& other);
+//    scale(const U& scalar);
 
   private:
     size_t _rows{0};
