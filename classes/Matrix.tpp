@@ -1,3 +1,5 @@
+/* Ctors && Dtors */
+
 template <matrix::Numeric T>
 Matrix<T>::Matrix(Dataset data) {
   for (const auto& row: data) {
@@ -21,6 +23,93 @@ template <matrix::Numeric T>
 const std::vector<std::vector<T> >& Matrix<T>::get_data() const {
     return _data;
 }
+
+/* Operator overloads */
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+matrix::PMatrix<T, U>
+Matrix<T>::operator+(const Matrix<U>& other) const {
+  matrix::PMatrix<T, U> tmp{*this};
+  tmp += other;
+  return tmp;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+Matrix<T>& Matrix<T>::operator+=(const Matrix<U>& other) {
+  const auto& data{other.get_data()};
+  for (size_t i{0}; i < data.size(); ++i) {
+    for (size_t j{0}; j < data[i].size(); ++j) {
+      this->_data[i][j] += data[i][j];
+    }
+  }
+  return *this;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+matrix::PMatrix<T, U>
+Matrix<T>::operator-(const Matrix<U>& other) const {
+  matrix::PMatrix<T, U> tmp{*this};
+  tmp -= other;
+  return tmp;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
+  const auto& data{other.get_data()};
+  for (size_t i{0}; i < _data.size(); ++i) {
+    for (size_t j{0}; j < _data[i].size(); ++j) {
+      _data[i][j] -= data[i][j];
+    }
+  }
+  return *this;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+matrix::PMatrix<T, U>
+Matrix<T>::operator*(const Matrix<U>& other) const {
+  matrix::PMatrix<T, U> tmp{*this};
+  tmp *= other;
+  return tmp;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+Matrix<T>& Matrix<T>::operator*=(const Matrix<U>& other) {
+  const auto& data{other.get_data()};
+  for (size_t i{0}; i < _data.size(); ++i) {
+    for (size_t j{0}; j < _data[i].size(); ++j) {
+      _data[i][j] *= data[i][j];
+    }
+  }
+  return *this;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+matrix::PMatrix<T, U>
+Matrix<T>::operator*(const U& scalar) const {
+  matrix::PMatrix<T, U> tmp{*this};
+  tmp *= scalar;
+  return tmp;
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
+  for (size_t i{0}; i < _data.size(); ++i) {
+    for (size_t j{0}; j < _data[i].size(); ++j) {
+      _data[i][j] *= scalar;
+    }
+  }
+  return *this;
+}
+
+/* Formatter */
 
 template <matrix::Numeric T>
 struct std::formatter<Matrix<T>> {
@@ -57,40 +146,3 @@ struct std::formatter<Matrix<T>> {
     return std::format_to(out, "]\n");
   }
 };
-
-
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//Matrix<T>& Matrix::add(const Matrix<U>& other) {
-// 
-//}
-//
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//Matrix<T>& Matrix::substract:(const Matrix<U>& other) {
-//
-//}
-//
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//Matrix<T>& Matrix::scale:(const Matrix<U>& other) {
-//
-//}
-//
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//Matrix<T> Matrix::add(const Matrix<U>& other) {
-//
-//}
-//
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//Matrix<T> Matrix::substract:(const Matrix<U>& other) {
-//
-//}
-//
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//Matrix<T> Matrix::scale(const Matrix<U>& other) {
-//
-//}
