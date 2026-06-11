@@ -36,17 +36,13 @@ class Matrix {
     Matrix() = delete;
     Matrix(Dataset data);
     Matrix(const Matrix<T>& other) = default;
+    template <matrix::Numeric U>
+    Matrix(const Matrix<U>& other);
     ~Matrix() = default;
 
     size_t get_rows() const;
     size_t get_cols() const;
     const Grid& get_data() const;
-
-    template <matrix::Numeric U>
-    [[nodiscard]]
-    auto operator<=>(const Matrix<U>& other) const;
-
-//    auto operator<=>(const Matrix<T>& other) const = default;
 
     template <matrix::Numeric U>
     [[nodiscard]]
@@ -85,5 +81,17 @@ class Matrix {
     size_t _cols{0};
     Grid _data{};
 };
+
+template <matrix::Numeric T, matrix::Numeric U>
+[[nodiscard]]
+auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs);
+
+template <matrix::Numeric T, matrix::Numeric U>
+[[nodiscard]]
+auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs);
+
+template <matrix::Numeric T, matrix::Numeric U>
+[[nodiscard]]
+auto operator!=(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
 #include "Matrix.tpp"

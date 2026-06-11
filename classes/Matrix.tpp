@@ -10,6 +10,21 @@ Matrix<T>::Matrix(Dataset data) {
 } 
 
 template <matrix::Numeric T>
+template <matrix::Numeric U>
+Matrix<T>::Matrix(const Matrix<U>& other)
+  : _rows(other.get_rows()),
+  _cols(other.get_cols()),
+  _data(_rows, std::vector<T>(_cols)) {
+  const auto& src = other.get_data();
+
+  for (size_t i = 0; i < _rows; ++i) {
+    for (size_t j = 0; j < _cols; ++j) {
+      _data[i][j] = static_cast<T>(src[i][j]);
+    }
+  }
+}
+
+template <matrix::Numeric T>
 size_t Matrix<T>::get_rows() const {
     return _rows;
 }
@@ -107,6 +122,25 @@ Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
     }
   }
   return *this;
+}
+
+template <matrix::Numeric T, matrix::Numeric U>
+[[nodiscard]]
+auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs) {
+  if (auto cmp = lhs.get_rows() <=> rhs.get_rows(); cmp != 0) return cmp;
+  if (auto cmp = lhs.get_cols() <=> rhs.get_cols(); cmp != 0) return cmp;
+  return lhs.get_data() <=> rhs.get_data();
+}
+
+template <matrix::Numeric T, matrix::Numeric U>
+[[nodiscard]]
+auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs) {
+  if constexpr (std::same_as<T, U>) {
+    return lhs.get_rows() == rhs.get_rows() &&
+      lhs.get_cols() == rhs.get_cols() &&
+      lhs.get_data() == rhs.get_data();
+  }
+  return false;
 }
 
 /* Formatter */
