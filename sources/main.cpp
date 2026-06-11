@@ -6,7 +6,7 @@ int main() {
   std::println("{}", m);
 
   Matrix<unsigned int> n{{{1, 2}, {3, 4}}};
-  std::println("{}", m);
+  std::println("{}", n);
 
   std::println("m == n ? {}\n", m == n);
 
@@ -20,6 +20,7 @@ int main() {
 
   std::println("Multiplications: ");
   std::println("{}", a1 * a2);
+  std::println("{}", m * n);
 
   return 0;
 }

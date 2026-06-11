@@ -148,7 +148,7 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
 
   const auto& rhs = other.get_data();
 
-  for (size_t i = 0; i < _data.size(); ++i) {
+  for (size_t i{0uz}; i < _data.size(); ++i) {
     _data[i] = static_cast<T>(_data[i] - rhs[i]);
   }
 
@@ -193,7 +193,7 @@ matrix::PMatrix<T, U> Matrix<T>::operator*(const Matrix<U>& other) const {
   std::vector<R> result_data(rows * cols, R{});
   const auto& rhs = other.get_data();
 
-  for (size_t i = 0; i < rows; ++i) {
+  for (size_t i{0uz}; i < rows; ++i) {
     for (size_t j = 0; j < cols; ++j) {
       R sum{};
 
