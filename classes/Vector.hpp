@@ -31,7 +31,38 @@ class Vector {
     Vector(const Vector& other) = default; 
     ~Vector() = default;
 
-    auto operator<=>(const Vector& other) const = default;
+    template <vector::Numeric U>
+    auto operator<=>(const Vector<U>& other) const;
+
+//    auto operator<=>(const Vector<T>& other) const = default;
+
+//    [[nodiscard]]
+//    template <vector::Numeric U>
+//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
+//
+//    template <vector::Numeric U>
+//    Vector<T>& operator+=(const Vector<U>& other);
+//
+//    [[nodiscard]]
+//    template <vector::Numeric U>
+//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
+//
+//    template <vector::Numeric U>
+//    Vector<T>& operator+=(const Vector<U>& other);
+//
+//    [[nodiscard]]
+//    template <vector::Numeric U>
+//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
+//
+//    template <vector::Numeric U>
+//    Vector<T>& operator+=(const Vector<U>& other);
+//
+//    [[nodiscard]]
+//    template <vector::Numeric U>
+//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
+//
+//    template <vector::Numeric U>
+//    Vector<T>& operator+=(const Vector<U>& other);
 
     size_t get_dimensions() const;
     const std::vector<T>& get_data() const;

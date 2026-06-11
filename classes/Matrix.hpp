@@ -42,27 +42,35 @@ class Matrix {
     size_t get_cols() const;
     const Grid& get_data() const;
 
-    auto operator<=>(const Matrix<T>& other) const = default;
+    template <matrix::Numeric U>
+    [[nodiscard]]
+    auto operator<=>(const Matrix<U>& other) const;
+
+//    auto operator<=>(const Matrix<T>& other) const = default;
 
     template <matrix::Numeric U>
+    [[nodiscard]]
     matrix::PMatrix<T, U> operator+(const Matrix<U>& other) const;
 
     template <matrix::Numeric U>
     Matrix<T>& operator+=(const Matrix<U>& other);
 
     template <matrix::Numeric U>
+    [[nodiscard]]
     matrix::PMatrix<T, U> operator-(const Matrix<U>& other) const;
 
     template <matrix::Numeric U>
     Matrix<T>& operator-=(const Matrix<U>& other);
 
     template <matrix::Numeric U>
+    [[nodiscard]]
     matrix::PMatrix<T, U> operator*(const Matrix<U>& other) const;
 
     template <matrix::Numeric U>
     Matrix<T>& operator*=(const Matrix<U>& other);
 
     template <matrix::Numeric U>
+    [[nodiscard]]
     matrix::PMatrix<T, U> operator*(const U& scalar) const;
 
     template <matrix::Numeric U>
