@@ -61,17 +61,9 @@ template <matrix::Numeric U>
 Matrix<T>::Matrix(const Matrix<U>& other)
   : _rows(other.get_rows()),
   _cols(other.get_cols()),
-//  _data(_rows, std::vector<T>(_cols)) {
-  _data(_rows * _cols) {
-  const auto& src = other.get_data();
-
-  for (size_t i{0uz}; i < _rows; ++i) {
-    for (size_t j{0uz}; j < _cols; ++j) {
-      size_t idx{i * _cols + j};
-      _data[idx] = static_cast<T>(src[idx]);
-//      _data[i][j] = static_cast<T>(src[i][j]);
-    }
-  }
+  _data(
+    other.get_data().begin(),
+    other.get_data().end()) {
 }
 
 template <matrix::Numeric T>
@@ -84,6 +76,11 @@ size_t Matrix<T>::get_cols() const {
     return _cols;
 }
 
+template<matrix::Numeric T>
+std::pair<size_t, size_t> Matrix<T>::get_shape() const {
+  return {_rows, _cols};
+}
+
 template <matrix::Numeric T>
 //const std::vector<std::vector<T> >& Matrix<T>::get_data() const {
 const std::vector<T>& Matrix<T>::get_data() const {
@@ -94,81 +91,126 @@ const std::vector<T>& Matrix<T>::get_data() const {
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
-matrix::PMatrix<T, U>
-Matrix<T>::operator+(const Matrix<U>& other) const {
-  matrix::PMatrix<T, U> tmp(*this);
-  tmp += other;
-  return tmp;
+[[nodiscard]]
+matrix::PMatrix<T, U> Matrix<T>::operator+(const Matrix<U>& other) const {
+  if (get_shape() != other.get_shape()) {
+    throw 
+      std::invalid_argument(
+        "Unable to add matrices with different shapes");
+  }
+
+  matrix::PMatrix<T, U> result(*this);
+  result += other;
+  return result;
 }
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator+=(const Matrix<U>& other) {
-  const auto& data{other.get_data()};
-  for (auto&& [lhs, rhs] : std::views::zip(_data, data)) {
-    lhs += rhs;
+  if (get_shape() != other.get_shape()) {
+    throw 
+      std::invalid_argument(
+        "Unable to add matrices with different shapes");
   }
+
+  const auto& rhs = other.get_data();
+
+  for (size_t i{0uz}; i < _data.size(); ++i) {
+    _data[i] = static_cast<T>(_data[i] + rhs[i]);
+  }
+
   return *this;
 }
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
-matrix::PMatrix<T, U>
-Matrix<T>::operator-(const Matrix<U>& other) const {
-  matrix::PMatrix<T, U> tmp(*this);
-  tmp -= other;
-  return tmp;
+[[nodiscard]]
+matrix::PMatrix<T, U> Matrix<T>::operator-(const Matrix<U>& other) const {
+  if (get_shape() != other.get_shape()) {
+    throw 
+      std::invalid_argument(
+        "Unable to subtract matrices with different shapes");
+  }
+
+  matrix::PMatrix<T, U> result(*this);
+  result -= other;
+  return result;
 }
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
-  const auto& data{other.get_data()};
-  for (auto&& [lhs, rhs] : std::views::zip(_data, data)) {
-    lhs -= rhs;
+  if (get_shape() != other.get_shape()) {
+    throw 
+      std::invalid_argument(
+        "Unable to subtract matrices with different shapes");
   }
+
+  const auto& rhs = other.get_data();
+
+  for (size_t i = 0; i < _data.size(); ++i) {
+    _data[i] = static_cast<T>(_data[i] - rhs[i]);
+  }
+
   return *this;
 }
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
-matrix::PMatrix<T, U>
-Matrix<T>::operator*(const Matrix<U>& other) const {
-  matrix::PMatrix<T, U> tmp(*this);
-  tmp *= other;
-  return tmp;
-}
-
-template <matrix::Numeric T>
-template <matrix::Numeric U>
-Matrix<T>& Matrix<T>::operator*=(const Matrix<U>& other) {
-  const auto& data{other.get_data()};
-  for (auto&& [lhs, rhs] : std::views::zip(_data, data)) {
-      lhs *= rhs;
-  }
-  return *this;
-}
-
-template <matrix::Numeric T>
-template <matrix::Numeric U>
-matrix::PMatrix<T, U>
-Matrix<T>::operator*(const U& scalar) const {
-  matrix::PMatrix<T, U> tmp(*this);
-  tmp *= scalar;
-  return tmp;
+[[nodiscard]]
+matrix::PMatrix<T, U> Matrix<T>::operator*(const U& scalar) const {
+  matrix::PMatrix<T, U> result(*this);
+  result *= scalar;
+  return result;
 }
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
-  for (auto& val: _data) {
-    val *= scalar;
+  for (auto& value : _data) {
+    value = static_cast<T>(value * scalar);
   }
+
   return *this;
 }
 
-template <matrix::Numeric T, matrix::Numeric U>
+template <matrix::Numeric T>
+template <matrix::Numeric U>
 [[nodiscard]]
+matrix::PMatrix<T, U> Matrix<T>::operator*(const Matrix<U>& other) const {
+  using R = matrix::promoted_type<T, U>;
+
+  if (_cols != other.get_rows()) {
+    throw 
+      std::invalid_argument(
+        "Unable to multiply matrices with incompatible shapes");
+  }
+
+  const size_t rows = _rows;
+  const size_t cols = other.get_cols();
+  const size_t inner = _cols;
+
+  std::vector<R> result_data(rows * cols, R{});
+  const auto& rhs = other.get_data();
+
+  for (size_t i = 0; i < rows; ++i) {
+    for (size_t j = 0; j < cols; ++j) {
+      R sum{};
+
+      for (size_t k = 0; k < inner; ++k) {
+        sum += static_cast<R>(_data[i * _cols + k])
+             * static_cast<R>(rhs[k * cols + j]);
+      }
+
+      result_data[i * cols + j] = sum;
+    }
+  }
+
+  return Matrix<R>(std::move(result_data), rows, cols);
+}
+
+template <matrix::Numeric T, matrix::Numeric U>
+//[[nodiscard]]
 auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs) {
   if (auto cmp = lhs.get_rows() <=> rhs.get_rows(); cmp != 0) return cmp;
   if (auto cmp = lhs.get_cols() <=> rhs.get_cols(); cmp != 0) return cmp;
@@ -176,7 +218,7 @@ auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs) {
 }
 
 template <matrix::Numeric T, matrix::Numeric U>
-[[nodiscard]]
+//[[nodiscard]]
 auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs) {
   if constexpr (std::same_as<T, U>) {
     return lhs.get_rows() == rhs.get_rows() &&

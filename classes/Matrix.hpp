@@ -12,6 +12,8 @@
 #include <ranges>
 
 namespace matrix {
+  // Faire evoluer le concept Numeric en Scalar pour supporter la gestion des 
+  // nombres complexes
   template <typename T>
   concept Numeric = std::integral<T> || std::floating_point<T>;
 
@@ -68,6 +70,7 @@ class Matrix {
 
     size_t get_rows() const;
     size_t get_cols() const;
+    std::pair<size_t, size_t> get_shape() const;
     const std::vector<T>& get_data() const;
 //    const Grid& get_data() const;
 
@@ -89,8 +92,8 @@ class Matrix {
     [[nodiscard]]
     matrix::PMatrix<T, U> operator*(const Matrix<U>& other) const;
 
-    template <matrix::Numeric U>
-    Matrix<T>& operator*=(const Matrix<U>& other);
+//    template <matrix::Numeric U>
+//    Matrix<T>& operator*=(const Matrix<U>& other);
 
     template <matrix::Numeric U>
     [[nodiscard]]
@@ -111,18 +114,17 @@ class Matrix {
 };
 
 template <matrix::Numeric T, matrix::Numeric U>
-[[nodiscard]]
+//[[nodiscard]]
 auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
 template <matrix::Numeric T, matrix::Numeric U>
-[[nodiscard]]
+//[[nodiscard]]
 auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
-template <matrix::Numeric T, matrix::Numeric U>
-[[nodiscard]]
-auto operator!=(const Matrix<T>& lhs, const Matrix<U>& rhs);
+//template <matrix::Numeric T, matrix::Numeric U>
+//[[nodiscard]]
+//auto operator!=(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
-// Tout en bas de Matrix.hpp
 template <typename T>
 Matrix(std::initializer_list<std::initializer_list<T>>) -> Matrix<T>;
 
