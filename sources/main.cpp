@@ -18,6 +18,7 @@ int main() {
   Matrix<int> a2{{1, 2, 3}, {4, 5, 6}};
   Matrix<int> a1{{1, 2}, {0, 1}, {2, 3}};
 
+  std::println("Multiplications: ");
   std::println("{}", a1 * a2);
 
   return 0;

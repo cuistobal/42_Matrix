@@ -19,11 +19,20 @@ namespace matrix {
   using promoted_type = std::common_type_t<T, U>;
 
   template <typename R, typename T>
-  concept nested_range = 
+  concept nested_range =
     Numeric<T> &&
-    std::ranges::forward_range<R> && 
+    std::ranges::forward_range<R> &&
     std::ranges::forward_range<std::ranges::range_value_t<R>> &&
-    std::convertible_to<std::ranges::range_value_t<std::ranges::range_value_t<R>>, T>;
+    std::convertible_to<
+      std::ranges::range_value_t<
+        std::ranges::range_value_t<R>>, T>;
+
+  template <typename R, typename T>
+  concept flat_range =
+    Numeric<T> &&
+    std::ranges::contiguous_range<R> &&
+    std::convertible_to<
+      std::ranges::range_value_t<R>, T>;
 }
 
 template <matrix::Numeric T>
@@ -44,6 +53,10 @@ class Matrix {
     Matrix() = delete;
   
     template <typename R>
+    requires matrix::flat_range<R, T>
+    Matrix(R&& data, size_t row, size_t col);
+
+    template <typename R>
     requires matrix::nested_range<R, T>
     Matrix(R&& data);
     Matrix(Dataset data);
@@ -55,7 +68,8 @@ class Matrix {
 
     size_t get_rows() const;
     size_t get_cols() const;
-    const Grid& get_data() const;
+    const std::vector<T>& get_data() const;
+//    const Grid& get_data() const;
 
     template <matrix::Numeric U>
     [[nodiscard]]
@@ -92,7 +106,8 @@ class Matrix {
   private:
     size_t _rows{0};
     size_t _cols{0};
-    Grid _data{};
+//    Grid _data{};
+    std::vector<T> _data{};
 };
 
 template <matrix::Numeric T, matrix::Numeric U>

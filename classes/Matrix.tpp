@@ -1,33 +1,8 @@
 /* Ctors && Dtors */
 
-//template <matrix::Numeric T>
-//Matrix<T>::Matrix(Dataset data) {
-//  for (const auto& row: data) {
-//    _data.push_back(std::vector<T>(row));
-//  }
-//  _rows = _data.size();
-//  _cols = _data.empty() ? 0 : _data[0].size();
-//} 
-
-
 template <matrix::Numeric T>
 Matrix<T>::Matrix(Dataset data) 
   : Matrix<T>(std::views::all(data)) {
-}
-
-template <matrix::Numeric T>
-template <matrix::Numeric U>
-Matrix<T>::Matrix(const Matrix<U>& other)
-  : _rows(other.get_rows()),
-  _cols(other.get_cols()),
-  _data(_rows, std::vector<T>(_cols)) {
-  const auto& src = other.get_data();
-
-  for (size_t i = 0; i < _rows; ++i) {
-    for (size_t j = 0; j < _cols; ++j) {
-      _data[i][j] = static_cast<T>(src[i][j]);
-    }
-  }
 }
 
 template <matrix::Numeric T>
@@ -45,7 +20,7 @@ Matrix<T>::Matrix(R&& data) {
   _rows = static_cast<size_t>(std::ranges::distance(data));
   _cols = static_cast<size_t>(std::ranges::distance(*std::ranges::begin(data)));
 
-  _data.reserve(_rows);
+  _data.reserve(_rows * _cols);
 
   for (const auto& row: data) {
     size_t d{static_cast<size_t>(std::ranges::distance(row))};
@@ -56,8 +31,46 @@ Matrix<T>::Matrix(R&& data) {
           _cols, 
           d));
     }
+    
+    _data.append_range(row);
+//    Less readbale equivalent
+//    _data.insert(_data.end(), std::ranges::begin(row), std::ranges::end(row));
+  }
+}
 
-    _data.emplace_back(std::ranges::begin(row), std::ranges::end(row));
+template <matrix::Numeric T>
+template <typename R>
+requires matrix::flat_range<R, T>
+Matrix<T>::Matrix(
+  R&& data,
+  size_t row,
+  size_t col) 
+  : _rows(row),
+  _cols(col) {
+  size_t size{static_cast<size_t>(std::ranges::distance(data))}; 
+  if (size != row * col) {
+    throw std::invalid_argument("Data size doesn't match expected size");
+  }
+
+  _data.assign(std::ranges::begin(data), std::ranges::end(data));
+  
+}
+
+template <matrix::Numeric T>
+template <matrix::Numeric U>
+Matrix<T>::Matrix(const Matrix<U>& other)
+  : _rows(other.get_rows()),
+  _cols(other.get_cols()),
+//  _data(_rows, std::vector<T>(_cols)) {
+  _data(_rows * _cols) {
+  const auto& src = other.get_data();
+
+  for (size_t i{0uz}; i < _rows; ++i) {
+    for (size_t j{0uz}; j < _cols; ++j) {
+      size_t idx{i * _cols + j};
+      _data[idx] = static_cast<T>(src[idx]);
+//      _data[i][j] = static_cast<T>(src[i][j]);
+    }
   }
 }
 
@@ -72,7 +85,8 @@ size_t Matrix<T>::get_cols() const {
 }
 
 template <matrix::Numeric T>
-const std::vector<std::vector<T> >& Matrix<T>::get_data() const {
+//const std::vector<std::vector<T> >& Matrix<T>::get_data() const {
+const std::vector<T>& Matrix<T>::get_data() const {
     return _data;
 }
 
@@ -91,10 +105,8 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator+=(const Matrix<U>& other) {
   const auto& data{other.get_data()};
-  for (size_t i{0}; i < data.size(); ++i) {
-    for (size_t j{0}; j < data[i].size(); ++j) {
-      this->_data[i][j] += data[i][j];
-    }
+  for (auto&& [lhs, rhs] : std::views::zip(_data, data)) {
+    lhs += rhs;
   }
   return *this;
 }
@@ -112,10 +124,8 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
   const auto& data{other.get_data()};
-  for (size_t i{0}; i < _data.size(); ++i) {
-    for (size_t j{0}; j < _data[i].size(); ++j) {
-      _data[i][j] -= data[i][j];
-    }
+  for (auto&& [lhs, rhs] : std::views::zip(_data, data)) {
+    lhs -= rhs;
   }
   return *this;
 }
@@ -133,10 +143,8 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator*=(const Matrix<U>& other) {
   const auto& data{other.get_data()};
-  for (size_t i{0}; i < _data.size(); ++i) {
-    for (size_t j{0}; j < _data[i].size(); ++j) {
-      _data[i][j] *= data[i][j];
-    }
+  for (auto&& [lhs, rhs] : std::views::zip(_data, data)) {
+      lhs *= rhs;
   }
   return *this;
 }
@@ -153,10 +161,8 @@ Matrix<T>::operator*(const U& scalar) const {
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
-  for (size_t i{0}; i < _data.size(); ++i) {
-    for (size_t j{0}; j < _data[i].size(); ++j) {
-      _data[i][j] *= scalar;
-    }
+  for (auto& val: _data) {
+    val *= scalar;
   }
   return *this;
 }
@@ -201,13 +207,18 @@ struct std::formatter<Matrix<T>> {
 
   auto format(const Matrix<T>& m, std::format_context& ctx) const {
     auto out{ctx.out()};
+    size_t cols{m.get_cols()};
     const auto& data{m.get_data()};
 
     out  = std::format_to(out, "[\n");
     for (size_t i{0}; i < m.get_rows(); ++i) {
       out = std::format_to(out, " [");
       for (size_t j{0}; j < m.get_cols(); ++j) {
-        out  = std::vformat_to(out, element_spec, std::make_format_args(data[i][j]));
+        out = 
+          std::vformat_to(
+            out, 
+            element_spec, 
+            std::make_format_args(data[i * cols + j]));
         if (j + 1 < m.get_cols()) {
           out = std::format_to(out, ", ");
         }
