@@ -8,6 +8,18 @@
 namespace vector {
   template <typename T>
   concept Numeric = std::integral<T> || std::floating_point<T>;
+
+  template <Numeric T, Numeric U>
+  using promoted_type = std::common_type_t<T, U>;
+
+}
+
+template <vector::Numeric T>
+class Vector;
+
+namespace vector {
+  template <vector::Numeric U, vector::Numeric T>
+  using PVector = Vector<matrix::promoted_type<T, U> >;
 }
 
 template <vector::Numeric T>

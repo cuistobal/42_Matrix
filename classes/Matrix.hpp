@@ -14,7 +14,7 @@ namespace matrix {
   template <typename T>
   concept Numeric = std::integral<T> || std::floating_point<T>;
 
-  template <typename T, typename U>
+  template <Numeric T, Numeric U>
   using promoted_type = std::common_type_t<T, U>;
 }
 
