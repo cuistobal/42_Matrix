@@ -1,13 +1,19 @@
 /* Ctors && Dtors */
 
+//template <matrix::Numeric T>
+//Matrix<T>::Matrix(Dataset data) {
+//  for (const auto& row: data) {
+//    _data.push_back(std::vector<T>(row));
+//  }
+//  _rows = _data.size();
+//  _cols = _data.empty() ? 0 : _data[0].size();
+//} 
+
+
 template <matrix::Numeric T>
-Matrix<T>::Matrix(Dataset data) {
-  for (const auto& row: data) {
-    _data.push_back(std::vector<T>(row));
-  }
-  _rows = _data.size();
-  _cols = _data.empty() ? 0 : _data[0].size();
-} 
+Matrix<T>::Matrix(Dataset data) 
+  : Matrix<T>(std::views::all(data)) {
+}
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
@@ -21,6 +27,37 @@ Matrix<T>::Matrix(const Matrix<U>& other)
     for (size_t j = 0; j < _cols; ++j) {
       _data[i][j] = static_cast<T>(src[i][j]);
     }
+  }
+}
+
+template <matrix::Numeric T>
+template <typename R>
+requires matrix::nested_range<R, T>
+Matrix<T>::Matrix(R&& data) {
+
+  // Quid de throw ?
+  if (std::ranges::empty(data)) {
+    _rows = 0;
+    _cols = 0;
+    return ;
+  }
+
+  _rows = static_cast<size_t>(std::ranges::distance(data));
+  _cols = static_cast<size_t>(std::ranges::distance(*std::ranges::begin(data)));
+
+  _data.reserve(_rows);
+
+  for (const auto& row: data) {
+    size_t d{static_cast<size_t>(std::ranges::distance(row))};
+    if (d != _cols) {
+      throw std::invalid_argument(
+        std::format(
+          "Invalid matrix format: expected {}, got {}",
+          _cols, 
+          d));
+    }
+
+    _data.emplace_back(std::ranges::begin(row), std::ranges::end(row));
   }
 }
 
@@ -45,7 +82,7 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 matrix::PMatrix<T, U>
 Matrix<T>::operator+(const Matrix<U>& other) const {
-  matrix::PMatrix<T, U> tmp{*this};
+  matrix::PMatrix<T, U> tmp(*this);
   tmp += other;
   return tmp;
 }
@@ -66,7 +103,7 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 matrix::PMatrix<T, U>
 Matrix<T>::operator-(const Matrix<U>& other) const {
-  matrix::PMatrix<T, U> tmp{*this};
+  matrix::PMatrix<T, U> tmp(*this);
   tmp -= other;
   return tmp;
 }
@@ -87,7 +124,7 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 matrix::PMatrix<T, U>
 Matrix<T>::operator*(const Matrix<U>& other) const {
-  matrix::PMatrix<T, U> tmp{*this};
+  matrix::PMatrix<T, U> tmp(*this);
   tmp *= other;
   return tmp;
 }
@@ -108,7 +145,7 @@ template <matrix::Numeric T>
 template <matrix::Numeric U>
 matrix::PMatrix<T, U>
 Matrix<T>::operator*(const U& scalar) const {
-  matrix::PMatrix<T, U> tmp{*this};
+  matrix::PMatrix<T, U> tmp(*this);
   tmp *= scalar;
   return tmp;
 }
