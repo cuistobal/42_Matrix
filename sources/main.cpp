@@ -1,7 +1,4 @@
-#include <print>
-
-#include "Matrix.hpp"
-#include "Vector.hpp"
+#include "ft_matrix.hpp"
 
 int main() {
 

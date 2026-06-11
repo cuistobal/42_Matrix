@@ -1,4 +1,4 @@
-//template <typename T>
+//template <vector::Numeric T>
 //Vector<T>::Vector(std::initializer_list<T> data) 
 //  : _dimensions(data.size()),
 //  _data(data) {
@@ -12,7 +12,7 @@
 //  return _data;
 //}
 //
-//template <typename T>
+//template <vector::Numeric T>
 //struct std::formatter<Vector<T>> {
 //
 //  std::string element_spec{"{}"};
@@ -47,24 +47,24 @@
 //  }
 //};
 
-template <typename T>
+template <vector::Numeric T>
 Vector<T>::Vector(std::initializer_list<T> data)
     : _dimensions(data.size()),
       _data(data)
 {
 }
 
-template <typename T>
+template <vector::Numeric T>
 size_t Vector<T>::get_dimensions() const {
   return _dimensions;
 }
 
-template <typename T>
+template <vector::Numeric T>
 const std::vector<T>& Vector<T>::get_data() const {
   return _data;
 }
 
-template <typename T>
+template <vector::Numeric T>
 struct std::formatter<Vector<T>> {
   std::string element_spec{"{}"};
 

@@ -5,14 +5,21 @@
 #include <format>
 #include <ostream>
 #include <iostream>
+#include <stdexcept>
 #include <concepts>
 #include <type_traits>
 
-template <typename T>
-//concept Numeric = std::integral<T> || std::floating_point<T>;
+namespace matrix { 
+  template <typename T>
+  concept Numeric = std::integral<T> || std::floating_point<T>;
+}
+
+template <matrix::Numeric T>
 class Matrix {
   public:
 
+    using Row = std::vector<T>;
+    using Grid = std::vector<Row>;
     using Dataset = std::initializer_list<std::initializer_list<T> >;
 
     Matrix() = delete;
@@ -22,27 +29,40 @@ class Matrix {
 
     size_t get_rows() const;
     size_t get_cols() const;
-    const std::vector<std::vector<T> >& get_data() const;
+//    const std::vector<std::vector<T> >& get_data() const;
+    const Grid& get_data() const;
 
     auto operator <=>(const Matrix<T>& other) const = default;
+
+    template <matrix::Numeric U>
+    Matrix<T> operator+(const Matrix<U>& other) const;
+    template <matrix::Numeric U>
+    Matrix<T>& operator+=(const Matrix<U>& other);
+
+    template <matrix::Numeric U>
+    Matrix<T> operator-(const Matrix<U>& other) const;
+    template <matrix::Numeric U>
+    Matrix<T>& operator-=(const Matrix<U>& other);
+
+    template <matrix::Numeric U>
+    Matrix<T> operator*(const Matrix<U>& other) const;
+    template <matrix::Numeric U>
+    Matrix<T>& operator*=(const Matrix<U>& other);
+
+    template <matrix::Numeric U>
+    Matrix<T> operator*(const U& scalar) const;
+    template <matrix::Numeric U>
+    Matrix<T>& operator*=(const U& scalar);
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& src) {
       return os << std::format("{}", src);
     };
 
-    // Exercice 00
-//    add(const Matrix<U>& other);
-//    substract(const Matrix<U>& other);
-//    scale(const U& scalar);
-//
-//    add(const Matrix<U>& other);
-//    substract(const Matrix<U>& other);
-//    scale(const U& scalar);
-
   private:
     size_t _rows{0};
     size_t _cols{0};
-    std::vector<std::vector<T> > _data{};
+    Grid _data{};
+//    std::vector<std::vector<T> > _data{};
 };
 
 #include "Matrix.tpp"

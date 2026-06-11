@@ -1,4 +1,4 @@
-template <typename T>
+template <matrix::Numeric T>
 Matrix<T>::Matrix(Dataset data) {
   for (const auto& row: data) {
     _data.push_back(std::vector<T>(row));
@@ -7,22 +7,22 @@ Matrix<T>::Matrix(Dataset data) {
   _cols = _data.empty() ? 0 : _data[0].size();
 } 
 
-template <typename T>
+template <matrix::Numeric T>
 size_t Matrix<T>::get_rows() const {
     return _rows;
 }
 
-template <typename T>
+template <matrix::Numeric T>
 size_t Matrix<T>::get_cols() const {
     return _cols;
 }
 
-template <typename T>
+template <matrix::Numeric T>
 const std::vector<std::vector<T> >& Matrix<T>::get_data() const {
     return _data;
 }
 
-template <typename T>
+template <matrix::Numeric T>
 struct std::formatter<Matrix<T>> {
   std::string element_spec{"{}"};
 
@@ -57,3 +57,40 @@ struct std::formatter<Matrix<T>> {
     return std::format_to(out, "]\n");
   }
 };
+
+
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//Matrix<T>& Matrix::add(const Matrix<U>& other) {
+// 
+//}
+//
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//Matrix<T>& Matrix::substract:(const Matrix<U>& other) {
+//
+//}
+//
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//Matrix<T>& Matrix::scale:(const Matrix<U>& other) {
+//
+//}
+//
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//Matrix<T> Matrix::add(const Matrix<U>& other) {
+//
+//}
+//
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//Matrix<T> Matrix::substract:(const Matrix<U>& other) {
+//
+//}
+//
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//Matrix<T> Matrix::scale(const Matrix<U>& other) {
+//
+//}

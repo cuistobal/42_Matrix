@@ -2,8 +2,15 @@
 
 #include <vector>
 #include <ostream>
+#include <concepts>
+#include <type_traits>
 
-template <typename T>
+namespace vector {
+  template <typename T>
+  concept Numeric = std::integral<T> || std::floating_point<T>;
+}
+
+template <vector::Numeric T>
 class Vector {
   public:
 
