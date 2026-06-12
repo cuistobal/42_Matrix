@@ -174,17 +174,56 @@ Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
   return *this;
 }
 
+//// Implemenation a revoir
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//[[nodiscard]]
+//matrix::PMatrix<T, U> Matrix<T>::operator*(const Matrix<U>& other) const {
+//  using R = matrix::promoted_type<T, U>;
+//
+//  if (_cols != other.get_rows()) {
+//    throw 
+//      std::invalid_argument(
+//        "Unable to multiply matrices with incompatible shapes");
+//  }
+//
+//  const size_t rows = _rows;
+//  const size_t cols = other.get_cols();
+//  const size_t inner = _cols;
+//
+//  std::vector<R> result_data(rows * cols, R{});
+//  const auto& rhs = other.get_data();
+//
+//  for (size_t i{0uz}; i < rows; ++i) {
+//    for (size_t j = 0; j < cols; ++j) {
+//      R sum{};
+//
+//      for (size_t k = 0; k < inner; ++k) {
+//        sum += static_cast<R>(_data[i * _cols + k])
+//             * static_cast<R>(rhs[k * cols + j]);
+//      }
+//
+//      result_data[i * cols + j] = sum;
+//    }
+//  }
+//
+//  return Matrix<R>(std::move(result_data), rows, cols);
+//}
+
+// Implementation revue
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 [[nodiscard]]
-matrix::PMatrix<T, U> Matrix<T>::operator*(const Matrix<U>& other) const {
-  using R = matrix::promoted_type<T, U>;
+matrix::PMatrix<T, U> Matrix<T>::operator*(
+  const Matrix<U>& other) const {
 
   if (_cols != other.get_rows()) {
     throw 
       std::invalid_argument(
         "Unable to multiply matrices with incompatible shapes");
   }
+
+  using R = matrix::promoted_type<T, U>;
 
   const size_t rows = _rows;
   const size_t cols = other.get_cols();
@@ -194,12 +233,17 @@ matrix::PMatrix<T, U> Matrix<T>::operator*(const Matrix<U>& other) const {
   const auto& rhs = other.get_data();
 
   for (size_t i{0uz}; i < rows; ++i) {
-    for (size_t j = 0; j < cols; ++j) {
+    for (size_t j{0uz}; j < inner; ++j) {
       R sum{};
 
-      for (size_t k = 0; k < inner; ++k) {
-        sum += static_cast<R>(_data[i * _cols + k])
-             * static_cast<R>(rhs[k * cols + j]);
+      const R lhs_val{static_cast<R>(_data[i * inner + j])};
+
+      const size_t rhs_row_offset{j * cols};
+      const size_t result_row_offset{i * cols};
+
+      for (size_t k{0uz}; k < cols; ++k) {
+        result_data[result_row_offset + k] =
+          lhs_val * static_cast<R>(rhs[rhs_row_offset + k]);
       }
 
       result_data[i * cols + j] = sum;

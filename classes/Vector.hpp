@@ -45,35 +45,33 @@ class Vector {
     template <vector::Numeric U>
     auto operator<=>(const Vector<U>& other) const;
 
-//    auto operator<=>(const Vector<T>& other) const = default;
+    template <vector::Numeric U>
+    [[nodiscard]]
+    vector::PVector<T, U> operator+(const Vector<U>& other) const;
 
-//    [[nodiscard]]
-//    template <vector::Numeric U>
-//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
-//
-//    template <vector::Numeric U>
-//    Vector<T>& operator+=(const Vector<U>& other);
-//
-//    [[nodiscard]]
-//    template <vector::Numeric U>
-//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
-//
-//    template <vector::Numeric U>
-//    Vector<T>& operator+=(const Vector<U>& other);
-//
-//    [[nodiscard]]
-//    template <vector::Numeric U>
-//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
-//
-//    template <vector::Numeric U>
-//    Vector<T>& operator+=(const Vector<U>& other);
-//
-//    [[nodiscard]]
-//    template <vector::Numeric U>
-//    vector::PVector<T, U> operator+(const Vector<U>& other) const;
-//
-//    template <vector::Numeric U>
-//    Vector<T>& operator+=(const Vector<U>& other);
+    template <vector::Numeric U>
+    Vector<T>& operator+=(const Vector<U>& other);
+
+    template <vector::Numeric U>
+    [[nodiscard]]
+    vector::PVector<T, U> operator-(const Vector<U>& other) const;
+
+    template <vector::Numeric U>
+    Vector<T>& operator-=(const Vector<U>& other);
+
+    template <vector::Numeric U>
+    [[nodiscard]]
+    vector::PVector<T, U> operator*(const Vector<U>& other) const;
+
+    template <vector::Numeric U>
+    Vector<T>& operator*=(const Vector<U>& other);
+
+    template <vector::Numeric U>
+    [[nodiscard]]
+    vector::PVector<T, U> operator*(const U& scalar) const;
+
+    template <vector::Numeric U>
+    Vector<T>& operator*=(const U& scalar);
 
     size_t get_dimensions() const;
     const std::vector<T>& get_data() const;
