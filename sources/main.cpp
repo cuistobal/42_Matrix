@@ -31,6 +31,11 @@ static Vector<T> linear_combination(
 
 int main() {
 
+  testing::InitGoogleTest();
+
+  return RUN_ALL_TESTS();
+
+
   Matrix<int> m{{{-1, 2}, {3, 4}}};
   std::println("{}", m);
 

@@ -3,6 +3,7 @@
 #include <print>
 #include <concepts>
 #include <type_traits>
+#include <gtest/gtest.h>
 
 #include "Matrix.hpp"
 #include "Vector.hpp"
