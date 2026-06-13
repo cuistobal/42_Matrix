@@ -1,6 +1,18 @@
 #include "ft_matrix.hpp"
 
+static void exercise00() {
+
+  // Vector addition
+
+  // Vector substractions
+
+  // Vector scaling
+
+}
+
 int main() {
+
+  exercise00();
 
   Matrix<int> m{{{-1, 2}, {3, 4}}};
   std::println("{}", m);
