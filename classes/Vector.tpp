@@ -7,6 +7,14 @@ Vector<T>::Vector(std::initializer_list<T> data)
 }
 
 template <vector::Numeric T>
+template <typename R>
+requires vector::flat_range<R, T>
+Vector<T>::Vector(R&& data)
+  : _dimensions(std::ranges::size(data)),
+    _data(std::ranges::begin(data), std::ranges::end(data)) {
+}
+
+template <vector::Numeric T>
 size_t Vector<T>::get_dimensions() const {
   return _dimensions;
 }
@@ -28,6 +36,19 @@ vector::PVector<T, U> Vector<T>::operator+(
     result._data += p; 
   }
   return result;
+}
+
+template <vector::Numeric T> 
+template <vector::Numeric U>
+Vector<T>& Vector<T>::operator+=(
+  const Vector<U>& other) {
+  const auto& data{other.get_data()};
+
+  for (size_t i{0uz}; i < data.size(); ++i) {
+    _data[i] += data[i];
+  }
+
+  return *this;
 }
 
 template <vector::Numeric T>
@@ -60,11 +81,12 @@ template <vector::Numeric T>
 template <vector::Numeric U>
 vector::PVector<T, U> Vector<T>::operator*(
   const U& scalar) const {
-  std::vector<T> newData(_data);
+  using R = vector::promoted_type<T, U>;
+  std::vector<R> newData(_data);
   for (size_t i{0uz}; i < _data.size(); ++i) {
     newData[i] *= scalar;
   }
-  return Vector<T>(newData);
+  return {newData};
 }
 
 /* Formatter */
