@@ -38,8 +38,11 @@ class Vector {
     requires vector::flat_range<R, T>
     Vector(R&& data);
 
+    template <vector::Numeric U>
+    Vector(const Vector<U>& other);
+
     Vector(std::initializer_list<T> data);
-    Vector(const Vector& other) = default; 
+    Vector(const Vector<T>& other) = default; 
     ~Vector() = default;
 
     template <vector::Numeric U>

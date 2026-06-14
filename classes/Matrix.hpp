@@ -48,8 +48,7 @@ namespace matrix {
 template <matrix::Numeric T>
 class Matrix {
   public:
-    using Row = std::vector<T>;
-    using Grid = std::vector<Row>;
+
     using Dataset = std::initializer_list<std::initializer_list<T>>;
 
     Matrix() = delete;
@@ -72,7 +71,6 @@ class Matrix {
     size_t get_cols() const;
     std::pair<size_t, size_t> get_shape() const;
     const std::vector<T>& get_data() const;
-//    const Grid& get_data() const;
 
     template <matrix::Numeric U>
     [[nodiscard]]
@@ -92,9 +90,6 @@ class Matrix {
     [[nodiscard]]
     matrix::PMatrix<T, U> operator*(const Matrix<U>& other) const;
 
-//    template <matrix::Numeric U>
-//    Matrix<T>& operator*=(const Matrix<U>& other);
-
     template <matrix::Numeric U>
     [[nodiscard]]
     matrix::PMatrix<T, U> operator*(const U& scalar) const;
@@ -109,21 +104,14 @@ class Matrix {
   private:
     size_t _rows{0};
     size_t _cols{0};
-//    Grid _data{};
     std::vector<T> _data{};
 };
 
 template <matrix::Numeric T, matrix::Numeric U>
-//[[nodiscard]]
 auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
 template <matrix::Numeric T, matrix::Numeric U>
-//[[nodiscard]]
 auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs);
-
-//template <matrix::Numeric T, matrix::Numeric U>
-//[[nodiscard]]
-//auto operator!=(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
 template <typename T>
 Matrix(std::initializer_list<std::initializer_list<T>>) -> Matrix<T>;

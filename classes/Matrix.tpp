@@ -58,12 +58,14 @@ Matrix<T>::Matrix(
 
 template <matrix::Numeric T>
 template <matrix::Numeric U>
-Matrix<T>::Matrix(const Matrix<U>& other)
+Matrix<T>::Matrix(
+  const Matrix<U>& other)
   : _rows(other.get_rows()),
-  _cols(other.get_cols()),
-  _data(
-    other.get_data().begin(),
-    other.get_data().end()) {
+    _cols(other.get_cols()) {
+    
+    _data = other.get_data() 
+          | std::views::transform([](const U& val) { return static_cast<T>(val); })
+          | std::ranges::to<std::vector<T>>();
 }
 
 template <matrix::Numeric T>

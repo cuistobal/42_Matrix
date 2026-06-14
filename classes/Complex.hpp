@@ -35,8 +35,10 @@ class Complex {
     T _imag{};
 }
 
-typename <Numeric T>
-typename <Numeric U>
+typename <complex::Numeric T, complex::Numeric U>
 auto operator <=>(const Complex<T>& lhs, const Complex<U>& rhs);
+
+typename <complex::Numeric T, complex::Numeric U>
+auto operator ==(const Complex<T>& lhs, const Complex<U>& rhs);
 
 #include "Complex.tpp"

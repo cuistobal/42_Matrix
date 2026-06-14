@@ -1,9 +1,10 @@
 /* Constructors */
 
 template <vector::Numeric T>
-Vector<T>::Vector(std::initializer_list<T> data)
-    : _dimensions(data.size()),
-      _data(data) {
+Vector<T>::Vector(
+  std::initializer_list<T> data)
+  : _dimensions(data.size()),
+    _data(data) {
 }
 
 template <vector::Numeric T>
@@ -13,6 +14,17 @@ Vector<T>::Vector(R&& data)
   : _dimensions(std::ranges::size(data)),
     _data(std::ranges::begin(data), std::ranges::end(data)) {
 }
+
+template <vector::Numeric T>
+template <vector::Numeric U>
+Vector<T>::Vector(
+  const Vector<U>& other) {
+}
+
+//template <vector::Numeric T>
+//Vector<T>::Vector(
+//  const Vector<T>& other) {
+//}
 
 template <vector::Numeric T>
 size_t Vector<T>::get_dimensions() const {
