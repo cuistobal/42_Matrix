@@ -6,39 +6,44 @@ namespace complex {
     std::integral<T> || 
     std::floating_point<T>;
 
-  template <typename T, typename U>
-  using promoted_type = std::common_type(T, U);
+  template <Numeric T, Numeric U>
+  using promoted_type = std::common_type_t<T, U>;
 }
 
-template <Numeric T>
+template <complex::Numeric T>
 class Complex;
 
 namespace complex {
   template <Numeric T, Numeric U>
-  using PComplex = Complex<promoted_type<T, U>>  
+  using PComplex = Complex<promoted_type<T, U>>;
 }
 
-template <typename T>
+template <complex::Numeric T>
 class Complex {
   public:
 
     Complex() = delete;
 
-    Complex(const T& Complex);
-    Complex(const U& Complex);
+    template <complex::Numeric U>
+    Complex(const Complex<U>& other);
     Complex(const T& real, const T& imag); 
 
-    ~Complex();
+    ~Complex() = default;
+    Complex(Complex<T>&& other) = default;
+    Complex(const Complex<T>& other) = default;
+
+    T get_real() const;
+    T get_imag() const;
 
   private:
     T _real{};
     T _imag{};
-}
+};
 
-typename <complex::Numeric T, complex::Numeric U>
+template <complex::Numeric T, complex::Numeric U>
 auto operator <=>(const Complex<T>& lhs, const Complex<U>& rhs);
 
-typename <complex::Numeric T, complex::Numeric U>
+template <complex::Numeric T, complex::Numeric U>
 auto operator ==(const Complex<T>& lhs, const Complex<U>& rhs);
 
 #include "Complex.tpp"

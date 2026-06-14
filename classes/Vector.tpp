@@ -18,13 +18,12 @@ Vector<T>::Vector(R&& data)
 template <vector::Numeric T>
 template <vector::Numeric U>
 Vector<T>::Vector(
-  const Vector<U>& other) {
+  const Vector<U>& other) 
+  : _dimensions(other.get_dimensions()) {
+    _data = other.get_data()
+      | std::views::transform([](const U& val) { return static_cast<T>(val); })
+      | std::ranges::to<std::vector<T>>();
 }
-
-//template <vector::Numeric T>
-//Vector<T>::Vector(
-//  const Vector<T>& other) {
-//}
 
 template <vector::Numeric T>
 size_t Vector<T>::get_dimensions() const {

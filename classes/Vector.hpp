@@ -43,10 +43,9 @@ class Vector {
 
     Vector(std::initializer_list<T> data);
     Vector(const Vector<T>& other) = default; 
-    ~Vector() = default;
-
     template <vector::Numeric U>
-    auto operator<=>(const Vector<U>& other) const;
+    Vector(const Vector<T>& other);
+    ~Vector() = default;
 
     template <vector::Numeric U>
     [[nodiscard]]

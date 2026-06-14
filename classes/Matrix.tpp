@@ -67,7 +67,6 @@ Matrix<T>::Matrix(
           | std::views::transform([](const U& val) { return static_cast<T>(val); })
           | std::ranges::to<std::vector<T>>();
 }
-
 template <matrix::Numeric T>
 size_t Matrix<T>::get_rows() const {
     return _rows;
