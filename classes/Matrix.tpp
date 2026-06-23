@@ -51,9 +51,9 @@ Matrix<T>::Matrix(
   if (size != row * col) {
     throw std::invalid_argument("Data size doesn't match expected size");
   }
-
-  _data.assign(std::ranges::begin(data), std::ranges::end(data));
-  
+//  _data.reserve(row * col);
+//  _data.assign(std::ranges::begin(data), std::ranges::end(data));
+  _data.assign_range(data);  
 }
 
 template <matrix::Numeric T>
@@ -61,11 +61,11 @@ template <matrix::Numeric U>
 Matrix<T>::Matrix(
   const Matrix<U>& other)
   : _rows(other.get_rows()),
-    _cols(other.get_cols()) {
-    
-    _data = other.get_data() 
-          | std::views::transform([](const U& val) { return static_cast<T>(val); })
-          | std::ranges::to<std::vector<T>>();
+    _cols(other.get_cols()),    
+    _data(other.get_data() 
+      | std::views::transform([](const U& val) { 
+          return static_cast<T>(val); })
+      | std::ranges::to<std::vector<T>>()) {
 }
 
 template <matrix::Numeric T>
@@ -149,8 +149,8 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
   }
 
   const auto& rhs = other.get_data();
-
-  for (size_t i{0uz}; i < _data.size(); ++i) {
+  const size_t size{_data.size()};
+  for (size_t i{0uz}; i < size; ++i) {
     _data[i] = static_cast<T>(_data[i] - rhs[i]);
   }
 
@@ -289,6 +289,30 @@ struct std::formatter<Matrix<T>> {
         element_spec += "}";
       }
       return it;
+  }
+
+  auto format(const Matrix<T>& m, std::format_context& ctx) const {
+    auto out = ctx.out();
+    const size_t cols = m.get_cols();
+    const size_t rows = m.get_rows();
+    const auto& data = m.get_data();
+
+    out = std::format_to(out, "[\n");
+    for (size_t i = 0; i < rows; ++i) {
+      out = std::format_to(out, " [");
+      const size_t row_offset = i * cols; // Sorti de la boucle j
+      for (size_t j = 0; j < cols; ++j) {
+        out = std::vformat_to(
+            out, 
+            element_spec, 
+            std::make_format_args(data[row_offset + j]));
+        if (j + 1 < cols) {
+          out = std::format_to(out, ", ");
+        }
+      }
+      out = std::format_to(out, "]{}\n", (i + 1 < rows ? "," : ""));
+    }
+    return std::format_to(out, "]\n");
   }
 
 //  auto format(const Matrix<T>& m, std::format_context& ctx) const {

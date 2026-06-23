@@ -11,8 +11,6 @@
 #include <type_traits>
 #include <initializer_list>
 // Can't use the offcial lib for some reason (not present on ym system atm :()
-// Used kokko's repo instead
-#include <mdspan/mdspan.hpp>
 
 namespace matrix {
   // Faire evoluer le concept Numeric en Scalar pour supporter la gestion des 
