@@ -25,7 +25,7 @@ class Vector;
 
 namespace vector {
   template <vector::Numeric U, vector::Numeric T>
-  using PVector = Vector<matrix::promoted_type<T, U> >;
+  using PVector = Vector<vector::promoted_type<T, U> >;
 }
 
 template <vector::Numeric T>

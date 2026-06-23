@@ -41,10 +41,14 @@ template <vector::Numeric T>
 template <vector::Numeric U>
 vector::PVector<T, U> Vector<T>::operator+(
   const Vector<U>& other) const {
+  if (get_dimensions() != other.get_dimensions()) {
+    throw std::invalid_argument("Unable to add vectors with different sizes");
+  }
+
   vector::PVector<T, U> result(*this);
   const auto& data{other.get_data()};
-  for (const auto& p: data) {
-    result._data += p; 
+  for (size_t i{0uz}; i < data.size(); ++i) {
+    result._data[i] += data[i];
   }
   return result;
 }
@@ -53,6 +57,10 @@ template <vector::Numeric T>
 template <vector::Numeric U>
 Vector<T>& Vector<T>::operator+=(
   const Vector<U>& other) {
+  if (get_dimensions() != other.get_dimensions()) {
+    throw std::invalid_argument("Unable to add vectors with different sizes");
+  }
+
   const auto& data{other.get_data()};
 
   for (size_t i{0uz}; i < data.size(); ++i) {
@@ -66,10 +74,14 @@ template <vector::Numeric T>
 template <vector::Numeric U>
 vector::PVector<T, U> Vector<T>::operator-(
   const Vector<U>& other) const {
+  if (get_dimensions() != other.get_dimensions()) {
+    throw std::invalid_argument("Unable to subtract vectors with different sizes");
+  }
+
   vector::PVector<T, U> result(*this);
   const auto& data{other.get_data()};
-  for (const auto& p: data) {
-    result._data -= p; 
+  for (size_t i{0uz}; i < data.size(); ++i) {
+    result._data[i] -= data[i];
   }
   return result;
 }
@@ -78,10 +90,14 @@ template <vector::Numeric T>
 template <vector::Numeric U>
 vector::PVector<T, U> Vector<T>::operator*(
   const Vector<U>& other) const {
-  vector::PVector result(*this);
+  if (get_dimensions() != other.get_dimensions()) {
+    throw std::invalid_argument("Unable to multiply vectors with different sizes");
+  }
+
+  vector::PVector<T, U> result(*this);
   const auto& data{other.get_data()};
-  for (const auto& d : data) {
-    _data *= d;
+  for (size_t i{0uz}; i < data.size(); ++i) {
+    result._data[i] *= data[i];
   }
   return result;
 }
@@ -93,11 +109,11 @@ template <vector::Numeric U>
 vector::PVector<T, U> Vector<T>::operator*(
   const U& scalar) const {
   using R = vector::promoted_type<T, U>;
-  std::vector<R> newData(_data);
+  std::vector<R> newData(_data.begin(), _data.end());
   for (size_t i{0uz}; i < _data.size(); ++i) {
     newData[i] *= scalar;
   }
-  return {newData};
+  return vector::PVector<T, U>(newData);
 }
 
 /* Formatter */

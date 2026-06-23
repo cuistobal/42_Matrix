@@ -1,15 +1,18 @@
 #pragma once
 
-#include <concepts>
-#include <format>
-#include <initializer_list>
-#include <iostream>
-#include <ostream>
-#include <stdexcept>
 #include <string>
-#include <type_traits>
 #include <vector>
 #include <ranges>
+#include <format>
+#include <ostream>
+#include <concepts>
+#include <iostream>
+#include <stdexcept>
+#include <type_traits>
+#include <initializer_list>
+// Can't use the offcial lib for some reason (not present on ym system atm :()
+// Used kokko's repo instead
+#include <mdspan/mdspan.hpp>
 
 namespace matrix {
   // Faire evoluer le concept Numeric en Scalar pour supporter la gestion des 
@@ -67,10 +70,10 @@ class Matrix {
     Matrix(const Matrix<U>& other);
     ~Matrix() = default;
 
-    size_t get_rows() const;
-    size_t get_cols() const;
-    std::pair<size_t, size_t> get_shape() const;
-    const std::vector<T>& get_data() const;
+    size_t get_rows() const noexcept;
+    size_t get_cols() const noexcept;
+    const std::vector<T>& get_data() const noexcept;
+    std::pair<size_t, size_t> get_shape() const noexcept;
 
     template <matrix::Numeric U>
     [[nodiscard]]

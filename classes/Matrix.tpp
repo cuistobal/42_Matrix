@@ -67,24 +67,25 @@ Matrix<T>::Matrix(
           | std::views::transform([](const U& val) { return static_cast<T>(val); })
           | std::ranges::to<std::vector<T>>();
 }
+
 template <matrix::Numeric T>
-size_t Matrix<T>::get_rows() const {
+size_t Matrix<T>::get_rows() const noexcept {
     return _rows;
 }
 
 template <matrix::Numeric T>
-size_t Matrix<T>::get_cols() const {
+size_t Matrix<T>::get_cols() const noexcept {
     return _cols;
 }
 
 template<matrix::Numeric T>
-std::pair<size_t, size_t> Matrix<T>::get_shape() const {
+std::pair<size_t, size_t> Matrix<T>::get_shape() const noexcept {
   return {_rows, _cols};
 }
 
 template <matrix::Numeric T>
-//const std::vector<std::vector<T> >& Matrix<T>::get_data() const {
-const std::vector<T>& Matrix<T>::get_data() const {
+//const std::vector<std::vector<T> >& Matrix<T>::get_data() const noexcept {
+const std::vector<T>& Matrix<T>::get_data() const noexcept {
     return _data;
 }
 
@@ -115,8 +116,8 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<U>& other) {
   }
 
   const auto& rhs = other.get_data();
-
-  for (size_t i{0uz}; i < _data.size(); ++i) {
+  const size_t size{_data.size()};
+  for (size_t i{0uz}; i < size; ++i) {
     _data[i] = static_cast<T>(_data[i] + rhs[i]);
   }
 
@@ -159,7 +160,8 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 [[nodiscard]]
-matrix::PMatrix<T, U> Matrix<T>::operator*(const U& scalar) const {
+matrix::PMatrix<T, U> Matrix<T>::operator*(
+  const U& scalar) const {
   matrix::PMatrix<T, U> result(*this);
   result *= scalar;
   return result;
@@ -175,13 +177,11 @@ Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
   return *this;
 }
 
-// Implementation revue
 template <matrix::Numeric T>
 template <matrix::Numeric U>
 [[nodiscard]]
 matrix::PMatrix<T, U> Matrix<T>::operator*(
   const Matrix<U>& other) const {
-
   if (_cols != other.get_rows()) {
     throw 
       std::invalid_argument(
@@ -191,32 +191,67 @@ matrix::PMatrix<T, U> Matrix<T>::operator*(
   using R = matrix::promoted_type<T, U>;
 
   const size_t rows = _rows;
-  const size_t cols = other.get_cols();
   const size_t inner = _cols;
+  const size_t cols = other.get_cols();
 
-  std::vector<R> result_data(rows * cols, R{});
   const auto& rhs = other.get_data();
+  std::vector<R> result_data(rows * cols, R{0});
 
-  for (size_t i{0uz}; i < rows; ++i) {
-    for (size_t j{0uz}; j < inner; ++j) {
-      R sum{};
+  for (size_t i = 0; i < rows; ++i) {
+    const size_t i_inner_offset = i * inner;
+    const size_t i_cols_offset = i * cols;
+    
+    for (size_t k = 0; k < inner; ++k) {
+      const R lhs_val = static_cast<R>(_data[i_inner_offset + k]);
+      const size_t k_cols_offset = k * cols;
 
-      const R lhs_val{static_cast<R>(_data[i * inner + j])};
-
-      const size_t rhs_row_offset{j * cols};
-      const size_t result_row_offset{i * cols};
-
-      for (size_t k{0uz}; k < cols; ++k) {
-        result_data[result_row_offset + k] =
-          lhs_val * static_cast<R>(rhs[rhs_row_offset + k]);
+      for (size_t j = 0; j < cols; ++j) {
+        result_data[i_cols_offset + j] += 
+          lhs_val * 
+          static_cast<R>(rhs[k_cols_offset + j]);
       }
-
-      result_data[i * cols + j] = sum;
     }
   }
 
+  // Si ton constructeur prend un std::vector par valeur et le move, c'est parfait
   return Matrix<R>(std::move(result_data), rows, cols);
 }
+
+//template <matrix::Numeric T>
+//template <matrix::Numeric U>
+//[[nodiscard]]
+//matrix::PMatrix<T, U> Matrix<T>::operator*(
+//  const Matrix<U>& other) const {
+//
+//  if (_cols != other.get_rows()) {
+//    throw 
+//      std::invalid_argument(
+//        "Unable to multiply matrices with incompatible shapes");
+//  }
+//
+//  using R = matrix::promoted_type<T, U>;
+//
+//  const size_t rows = _rows;
+//  const size_t inner = _cols;
+//  const size_t cols = other.get_cols();
+//
+//  std::vector<R> result_data(rows * cols, R{});
+//
+//  std::mdspan lhs(_data.data(), rows, inner);
+//  std::mdspan rhs(other.get_data().data(), inner, cols);
+//  std::mdspan res(result_data.data(), rows, cols);
+//
+//  for (size_t i = 0; i < rows; ++i) {
+//    for (size_t k = 0; k < inner; ++k) {
+//      const R lhs_val = static_cast<R>(lhs_view(i, k));    
+//      for (size_t j = 0; j < cols; ++j) {
+//        res_view(i, j) += lhs * static_cast<R>(rhs(k, j));
+//      }
+//    }
+//  }
+//
+//  return Matrix<R>(std::move(result_data), rows, cols);
+//}
 
 template <matrix::Numeric T, matrix::Numeric U>
 //[[nodiscard]]
@@ -256,26 +291,30 @@ struct std::formatter<Matrix<T>> {
       return it;
   }
 
-  auto format(const Matrix<T>& m, std::format_context& ctx) const {
-    auto out{ctx.out()};
-    size_t cols{m.get_cols()};
-    const auto& data{m.get_data()};
-
-    out  = std::format_to(out, "[\n");
-    for (size_t i{0}; i < m.get_rows(); ++i) {
-      out = std::format_to(out, " [");
-      for (size_t j{0}; j < m.get_cols(); ++j) {
-        out = 
-          std::vformat_to(
-            out, 
-            element_spec, 
-            std::make_format_args(data[i * cols + j]));
-        if (j + 1 < m.get_cols()) {
-          out = std::format_to(out, ", ");
-        }
-      }
-      out = std::format_to(out, "]{}\n", (i + 1 < m.get_rows() ? "," : ""));
-    }
-    return std::format_to(out, "]\n");
-  }
+//  auto format(const Matrix<T>& m, std::format_context& ctx) const {
+//    auto out{ctx.out()};
+//    size_t rows = m.get_rows();
+//    size_t cols = m.get_cols();
+//    
+//    // Vue mdspan sur les données constantes de la matrice
+//    std::mdspan view(m.get_data().data(), rows, cols);
+//
+//    out = std::format_to(out, "[\n");
+//    for (size_t i = 0; i < rows; ++i) {
+//      out = std::format_to(out, " [");
+//      for (size_t j = 0; j < cols; ++j) {
+//        out = std::vformat_to(
+//          out, 
+//          element_spec, 
+//          std::make_format_args(view(i, j))
+//        );
+//        
+//        if (j + 1 < cols) {
+//          out = std::format_to(out, ", ");
+//        }
+//      }
+//      out = std::format_to(out, "]{}\n", (i + 1 < rows ? "," : ""));
+//    }
+//    return std::format_to(out, "]\n");
+//  }
 };
