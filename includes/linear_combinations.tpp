@@ -1,10 +1,12 @@
-#include "ft_matrix.hpp"
+template <concepts::Numeric T, concepts::Numeric U>
+inline concepts::Promoted_Type<T, U> linear_combination(
+  T multiplicand,  
+  U scalar) {
+  using R = concepts::Promoted_Type<T, U>;
+  return static_cast<R>(multiplicand * scalar);
+}
 
-
-//template <vector::promoted_type T, vector::Numeric U>
-
-// The linear combination is the sum of the product of n vectors by n scalars
-template <vector::Numeric T, vector::Numeric U>
+template <concepts::Numeric T, concepts::Numeric U>
 vector::PVector<T, U> linear_combination(
   std::vector<Vector<T>>& candidates, 
   std::vector<U>& scalars) {
@@ -30,7 +32,8 @@ vector::PVector<T, U> linear_combination(
         std::invalid_argument(
           "Candidate size mismatch");
     }
-    ans += candidates[i] * scalars[i];
+//    ans += candidates[i] * scalars[i];
+    ans += linear_combination(candidates[i], scalars[i]);
   }
 
   return ans;
