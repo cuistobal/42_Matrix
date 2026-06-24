@@ -13,8 +13,14 @@ namespace concepts {
   template <typename T>
   concept Numeric = std::integral<T> || std::floating_point<T>;
 
+  template <typename T>
+  concept SignedNumeric = std::signed_integral<T> || std::floating_point<T>;
+
   template <Numeric T, Numeric U>
   using Promoted_Type = std::common_type_t<T, U>;
+
+  template <SignedNumeric T, SignedNumeric U>
+  using Promoted_Signed_Type = std::common_type_t<T, U>;
 
   template <typename R, typename T>
   concept flat_range = 
