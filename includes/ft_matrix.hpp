@@ -1,14 +1,12 @@
 #pragma once
 
 #include <print>
+#include <vector>
+#include <ranges>
 #include <concepts>
 #include <stdfloat>
 #include <type_traits>
 #include <gtest/gtest.h>
-
-#include "Matrix.hpp"
-#include "Vector.hpp"
-#include "Complex.hpp"
 
 namespace concepts {
   
@@ -17,37 +15,55 @@ namespace concepts {
 
   template <Numeric T, Numeric U>
   using Promoted_Type = std::common_type_t<T, U>;
+
+  template <typename R, typename T>
+  concept flat_range = 
+    Numeric<T> &&
+    std::ranges::contiguous_range<R> &&
+    std::convertible_to<std::ranges::range_value_t<R>, T>;
+
+  template <typename R, typename T>
+  concept nested_range =
+    Numeric<T> &&
+    std::ranges::forward_range<R> &&
+    std::ranges::forward_range<std::ranges::range_value_t<R>> &&
+    std::convertible_to<
+      std::ranges::range_value_t<std::ranges::range_value_t<R>>, T>;
 }
+
+#include "Matrix.hpp"
+#include "Vector.hpp"
+#include "Complex.hpp"
 
 // Basic operations
 template <concepts::Numeric T, concepts::Numeric U>
-auto vector_addition(const Vector<T>& lhs, const Vector<U>& rhs);
+[[nodiscard]] inline auto add(const Vector<T>& lhs, const Vector<U>& rhs) noexcept;
 
 template <concepts::Numeric T, concepts::Numeric U>
-auto vector_substraction(const Vector<T>& lhs, const Vector<U>& rhs);
+[[nodiscard]] inline auto sub(const Vector<T>& lhs, const Vector<U>& rhs) noexcept;
 
 template <concepts::Numeric T, concepts::Numeric U>
-auto vector_scaling(const Vector<T>& lhs, const U& scalar);
-
+[[nodiscard]] inline auto scl(const Vector<T>& lhs, const U& scalar) noexcept;
 
 // linear combinations
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_combination(T multiplicand, U scalar);
 
 template <concepts::Numeric T, concepts::Numeric U>
-inline concepts::Promoted_Type<T, U> linear_combination(T multiplicand, U scalar);
-
-template <concepts::Numeric T, concepts::Numeric U>
-vector::PVector<T, U> linear_combination(std::vector<Vector<T>>& candidates, std::vector<U>& scalars);
+[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_combination(std::vector<Vector<T>>& candidates, std::vector<U>& scalars);
 
 // linear interpolations
 template <concepts::Numeric T, concepts::Numeric U>
-inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v, std::float32_t t);
+[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v, std::float32_t t);
 
 template <concepts::Numeric T, concepts::Numeric U>
-vector::PVector<T, U> linear_interpolation(const Vector<T>& u, const Vector<U>& v, std::float32_t t);
+[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_interpolation(const Vector<T>& u, const Vector<U>& v, std::float32_t t);
 
 template <concepts::Numeric T, concepts::Numeric U>
-matrix::PMatrix<T, U> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t);
+[[nodiscard]] Matrix<concepts::Promoted_Type<T, U>> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t);
 
 #include "basic_operations.tpp"
 #include "linear_combinations.tpp"
 #include "linear_interpolations.tpp"
+#include "dot_products.tpp"
+

@@ -1,3 +1,5 @@
+#include <cassert>
+
 template <concepts::Numeric T, concepts::Numeric U>
 inline concepts::Promoted_Type<T, U> linear_combination(
   T multiplicand,  
@@ -7,32 +9,20 @@ inline concepts::Promoted_Type<T, U> linear_combination(
 }
 
 template <concepts::Numeric T, concepts::Numeric U>
-vector::PVector<T, U> linear_combination(
+Vector<concepts::Promoted_Type<T, U>> linear_combination(
   std::vector<Vector<T>>& candidates, 
   std::vector<U>& scalars) {
 
-  if (candidates.empty() || scalars.empty()) {
-    throw 
-      std::invalid_argument(
-        "This function requires candidates and scalars");
-  }
+  assert(!candidates.empty() && !scalars.empty() && "This function requires candidates and scalars");
 
-  size_t expected_size{candidates[0]};
-  if (scalars.size() != expected_size) {
-    throw 
-      std::invalid_argument(
-        "Scalars and candidates size mismatch");
-  }
+  size_t expected_size{candidates[0].get_dimensions()};
+  
+  assert(scalars.size() == candidates.size() && "Scalars and candidates count mismatch");
 
-  vector::PVector<T, U> ans = candidates[0] * scalars[0];
+  Vector<concepts::Promoted_Type<T, U>> ans = candidates[0] * scalars[0];
 
   for (size_t i{1uz}; i < scalars.size(); ++i) {
-    if (candidates[i].get_dimensions() != expected_size) {
-      throw 
-        std::invalid_argument(
-          "Candidate size mismatch");
-    }
-//    ans += candidates[i] * scalars[i];
+    assert(candidates[i].get_dimensions() == expected_size && "Candidate size mismatch");
     ans += linear_combination(candidates[i], scalars[i]);
   }
 

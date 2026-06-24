@@ -6,73 +6,48 @@
 #include <concepts>
 #include <type_traits>
 
-namespace vector {
-  template <typename T>
-  concept Numeric = std::integral<T> || std::floating_point<T>;
-
-  template <Numeric T, Numeric U>
-  using promoted_type = std::common_type_t<T, U>;
-
-  template <typename R, typename T>
-  concept flat_range = 
-    std::ranges::contiguous_range<R> &&
-    std::convertible_to<
-      std::ranges::range_value_t<R>, T>;
-}
-
-template <vector::Numeric T>
-class Vector;
-
-namespace vector {
-  template <vector::Numeric U, vector::Numeric T>
-  using PVector = Vector<vector::promoted_type<T, U> >;
-}
-
-template <vector::Numeric T>
+template <concepts::Numeric T>
 class Vector {
   public:
-
     Vector() = delete;
 
     template <typename R>
-    requires vector::flat_range<R, T>
+    requires concepts::flat_range<R, T>
     Vector(R&& data);
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     Vector(const Vector<U>& other);
 
     Vector(std::initializer_list<T> data);
     Vector(const Vector<T>& other) = default; 
-    template <vector::Numeric U>
-    Vector(const Vector<T>& other);
     ~Vector() = default;
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     [[nodiscard]]
-    vector::PVector<T, U> operator+(const Vector<U>& other) const;
+    Vector<concepts::Promoted_Type<T, U>> operator+(const Vector<U>& other) const;
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     Vector<T>& operator+=(const Vector<U>& other);
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     [[nodiscard]]
-    vector::PVector<T, U> operator-(const Vector<U>& other) const;
+    Vector<concepts::Promoted_Type<T, U>> operator-(const Vector<U>& other) const;
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     Vector<T>& operator-=(const Vector<U>& other);
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     [[nodiscard]]
-    vector::PVector<T, U> operator*(const Vector<U>& other) const;
+    Vector<concepts::Promoted_Type<T, U>> operator*(const Vector<U>& other) const;
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     Vector<T>& operator*=(const Vector<U>& other);
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     [[nodiscard]]
-    vector::PVector<T, U> operator*(const U& scalar) const;
+    Vector<concepts::Promoted_Type<T, U>> operator*(const U& scalar) const;
 
-    template <vector::Numeric U>
+    template <concepts::Numeric U>
     Vector<T>& operator*=(const U& scalar);
 
     size_t get_dimensions() const;
@@ -87,10 +62,10 @@ class Vector {
     std::vector<T> _data;
 };
 
-template <vector::Numeric T, vector::Numeric U>
+template <concepts::Numeric T, concepts::Numeric U>
 auto operator<=>(const Vector<T>& lhs, const Vector<U>& rhs);
 
-template <vector::Numeric T, vector::Numeric U>
+template <concepts::Numeric T, concepts::Numeric U>
 auto operator==(const Vector<T>& lhs, const Vector<U>& rhs);
 
 #include "Vector.tpp"
