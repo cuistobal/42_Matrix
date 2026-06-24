@@ -1,7 +1,7 @@
 #include <cassert>
 
 template <concepts::Numeric T, concepts::Numeric U>
-inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v, std::float32_t t) {
+[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v, std::float32_t t) noexcept {
   using R = concepts::Promoted_Type<T, U>;
   return 
     static_cast<R>(
@@ -10,7 +10,7 @@ inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v
 }
 
 template <concepts::Numeric T, concepts::Numeric U>
-Vector<concepts::Promoted_Type<T, U>> linear_interpolation(const Vector<T>& u, const Vector<U>& v, std::float32_t t) { 
+[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_interpolation(const Vector<T>& u, const Vector<U>& v, std::float32_t t) noexcept { 
   
   assert(u.get_dimensions() == v.get_dimensions() && "Can't interpolate vectors with different shapes");
 
@@ -27,7 +27,7 @@ Vector<concepts::Promoted_Type<T, U>> linear_interpolation(const Vector<T>& u, c
 }
 
 template <concepts::Numeric T, concepts::Numeric U>
-Matrix<concepts::Promoted_Type<T, U>> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t) { 
+[[nodiscard]] Matrix<concepts::Promoted_Type<T, U>> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t) noexcept { 
 
   assert(u.get_shape() == v.get_shape() && "Can't interpolate matrixes with different shapes");
 

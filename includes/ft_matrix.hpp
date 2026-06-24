@@ -47,20 +47,20 @@ template <concepts::Numeric T, concepts::Numeric U>
 
 // linear combinations
 template <concepts::Numeric T, concepts::Numeric U>
-[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_combination(T multiplicand, U scalar);
+[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_combination(T multiplicand, U scalar) noexcept;
 
 template <concepts::Numeric T, concepts::Numeric U>
-[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_combination(std::vector<Vector<T>>& candidates, std::vector<U>& scalars);
+[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_combination(std::vector<Vector<T>>& candidates, std::vector<U>& scalars) noexcept;
 
 // linear interpolations
 template <concepts::Numeric T, concepts::Numeric U>
-[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v, std::float32_t t);
+[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_interpolation(const T& u, const U& v, std::float32_t t) noexcept;
 
 template <concepts::Numeric T, concepts::Numeric U>
-[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_interpolation(const Vector<T>& u, const Vector<U>& v, std::float32_t t);
+[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_interpolation(const Vector<T>& u, const Vector<U>& v, std::float32_t t) noexcept;
 
 template <concepts::Numeric T, concepts::Numeric U>
-[[nodiscard]] Matrix<concepts::Promoted_Type<T, U>> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t);
+[[nodiscard]] Matrix<concepts::Promoted_Type<T, U>> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t) noexcept;
 
 #include "basic_operations.tpp"
 #include "linear_combinations.tpp"

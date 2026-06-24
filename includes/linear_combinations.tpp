@@ -1,17 +1,17 @@
 #include <cassert>
 
 template <concepts::Numeric T, concepts::Numeric U>
-inline concepts::Promoted_Type<T, U> linear_combination(
+[[nodiscard]] inline concepts::Promoted_Type<T, U> linear_combination(
   T multiplicand,  
-  U scalar) {
+  U scalar) noexcept {
   using R = concepts::Promoted_Type<T, U>;
   return static_cast<R>(multiplicand * scalar);
 }
 
 template <concepts::Numeric T, concepts::Numeric U>
-Vector<concepts::Promoted_Type<T, U>> linear_combination(
+[[nodiscard]] Vector<concepts::Promoted_Type<T, U>> linear_combination(
   std::vector<Vector<T>>& candidates, 
-  std::vector<U>& scalars) {
+  std::vector<U>& scalars) noexcept {
 
   assert(!candidates.empty() && !scalars.empty() && "This function requires candidates and scalars");
 
