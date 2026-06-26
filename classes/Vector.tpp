@@ -150,7 +150,7 @@ template <concepts::Numeric T>
   auto norm = _data |
     std::views::transform(
       [](auto&& val){
-        return std::abs(static_cast<std::float32_t>(val));
+        return static_cast<std::float32_t>(val * val);
       }
     );
 

@@ -20,9 +20,11 @@ int main() {
 
   std::println("{}", f.norm());
 
-  Vector<float> j{-100.0f, 120.0f};
+  Vector<float> j{-100.0f, 12.0f, 67.0f};
 
   std::println("{}", j.norm_inf());
+
+  std::println("{}", angle_cos(f, j));
 
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();

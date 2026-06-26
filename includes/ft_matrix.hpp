@@ -78,7 +78,12 @@ template <concepts::Numeric T, concepts::Numeric U>
 template <concepts::Numeric T, concepts::Numeric U>
 [[nodiscard]] auto dot(const Matrix<T>& lhs, const Matrix<U>& rhs) -> concepts::Promoted_Type<T, U>;
 
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] std::float32_t angle_cos(Vector<T>& lhs, Vector<U>& rhs);
+
 #include "basic_operations.tpp"
 #include "linear_combinations.tpp"
 #include "linear_interpolations.tpp"
 #include "dot_products.tpp"
+#include "cosine.tpp"
