@@ -37,6 +37,10 @@ class Vector {
     size_t get_dimensions() const;
     const std::vector<T>& get_data() const;
 
+    std::float32_t norm();
+    std::float32_t norm_1();
+    std::float32_t norm_inf();
+
     friend std::ostream& operator<<(std::ostream& os, const Vector<T>& src) {
       return os << src;
     }

@@ -16,6 +16,14 @@ int main() {
 
   std::println("{}", dot(f, c));
 
+  std::println("{}", f.norm_1());
+
+  std::println("{}", f.norm());
+
+  Vector<float> j{-100.0f, 120.0f};
+
+  std::println("{}", j.norm_inf());
+
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 }

@@ -128,6 +128,55 @@ template <concepts::Numeric T, concepts::Numeric U>
   return rhs * scalar;
 }
 
+/* Norms */
+
+// Manhattan norm
+template <concepts::Numeric T>
+[[nodiscard]] std::float32_t Vector<T>::norm_1() {
+  auto norm = _data |
+    std::views::transform(
+      [](auto&& val){
+        return std::abs(static_cast<std::float32_t>(val));
+      }
+    );
+
+  return std::ranges::fold_left(norm, std::float32_t{0}, std::plus<>{});
+}
+
+// Euclidian norm
+template <concepts::Numeric T>
+[[nodiscard]] std::float32_t Vector<T>::norm() {
+
+  auto norm = _data |
+    std::views::transform(
+      [](auto&& val){
+        return std::abs(static_cast<std::float32_t>(val));
+      }
+    );
+
+  return 
+    std::sqrt(
+      std::ranges::fold_left(
+        norm, 
+        std::float32_t{0}, 
+        std::plus<>{}
+      )
+    );
+}
+
+// Supremum norm
+template <concepts::Numeric T>
+[[nodiscard]] std::float32_t Vector<T>::norm_inf() {
+  auto abs = _data |
+    std::views::transform(
+      [](auto&& val){
+        return std::abs(val);
+      }
+    );
+
+  return std::ranges::max(abs); 
+}
+
 /* Formatter */
 
 template <concepts::Numeric T>
