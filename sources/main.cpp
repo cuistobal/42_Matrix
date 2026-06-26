@@ -14,6 +14,8 @@ int main() {
   
   std::println("{}", linear_interpolation(f, c, t));
 
+  std::println("{}", dot(f, c));
+
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 }

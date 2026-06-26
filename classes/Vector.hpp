@@ -23,29 +23,13 @@ class Vector {
     ~Vector() = default;
 
     template <concepts::Numeric U>
-    [[nodiscard]]
-    Vector<concepts::Promoted_Type<T, U>> operator+(const Vector<U>& other) const;
-
-    template <concepts::Numeric U>
     Vector<T>& operator+=(const Vector<U>& other);
-
-    template <concepts::Numeric U>
-    [[nodiscard]]
-    Vector<concepts::Promoted_Type<T, U>> operator-(const Vector<U>& other) const;
 
     template <concepts::Numeric U>
     Vector<T>& operator-=(const Vector<U>& other);
 
     template <concepts::Numeric U>
-    [[nodiscard]]
-    Vector<concepts::Promoted_Type<T, U>> operator*(const Vector<U>& other) const;
-
-    template <concepts::Numeric U>
     Vector<T>& operator*=(const Vector<U>& other);
-
-    template <concepts::Numeric U>
-    [[nodiscard]]
-    Vector<concepts::Promoted_Type<T, U>> operator*(const U& scalar) const;
 
     template <concepts::Numeric U>
     Vector<T>& operator*=(const U& scalar);
@@ -67,5 +51,20 @@ auto operator<=>(const Vector<T>& lhs, const Vector<U>& rhs);
 
 template <concepts::Numeric T, concepts::Numeric U>
 auto operator==(const Vector<T>& lhs, const Vector<U>& rhs);
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator+(const Vector<T>& lhs, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator-(const Vector<T>& lhs, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Vector<T>& lhs, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Vector<T>& lhs, const U& scalar) -> Vector<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const T& scalar, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>>;
 
 #include "Vector.tpp"

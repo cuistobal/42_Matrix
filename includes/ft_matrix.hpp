@@ -3,6 +3,7 @@
 #include <print>
 #include <vector>
 #include <ranges>
+#include <numeric>
 #include <concepts>
 #include <stdfloat>
 #include <type_traits>
@@ -67,6 +68,23 @@ template <concepts::Numeric T, concepts::Numeric U>
 
 template <concepts::Numeric T, concepts::Numeric U>
 [[nodiscard]] Matrix<concepts::Promoted_Type<T, U>> linear_interpolation(const Matrix<T>& u, const Matrix<U>& v, std::float32_t t) noexcept;
+
+// Dot products
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto dot(const Vector<T>& lhs, const Vector<U>& rhs) -> concepts::Promoted_Type<T, U>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto dot(const Matrix<T>& lhs, const Matrix<U>& rhs) -> concepts::Promoted_Type<T, U>;
+
+// Norms
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto norm_1(const Vector<T>& lhs, const Vector<U>& rhs) -> concepts::Promoted_Type<T, U>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto norm(const Vector<T>& lhs, const Vector<U>& rhs) -> concepts::Promoted_Type<T, U>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto norm_inf(const Vector<T>& lhs, const Vector<U>& rhs) -> concepts::Promoted_Type<T, U>;
 
 #include "basic_operations.tpp"
 #include "linear_combinations.tpp"

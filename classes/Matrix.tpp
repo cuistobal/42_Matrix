@@ -22,10 +22,8 @@ Matrix<T>::Matrix(R&& data) {
   _cols = static_cast<size_t>(std::ranges::distance(*std::ranges::begin(data)));
 
   _data.reserve(_rows * _cols);
-
   for (const auto& row: data) {
     size_t d{static_cast<size_t>(std::ranges::distance(row))};
-    
     assert(d == _cols && "Invalid matrix format: row size mismatch");
     
     _data.append_range(row);
@@ -42,7 +40,6 @@ Matrix<T>::Matrix(
   : _rows(row),
   _cols(col) {
   size_t size{static_cast<size_t>(std::ranges::distance(data))};
-  
   assert(size == row * col && "Data size doesn't match expected size");
   
   _data.assign_range(data);
@@ -80,26 +77,13 @@ const std::vector<T>& Matrix<T>::get_data() const noexcept {
     return _data;
 }
 
-/* Operator overloads */
-
-template <concepts::Numeric T>
-template <concepts::Numeric U>
-[[nodiscard]]
-Matrix<concepts::Promoted_Type<T, U>> Matrix<T>::operator+(const Matrix<U>& other) const {
-  
-  assert(get_shape() == other.get_shape() && "Unable to add matrices with different shapes");
-
-  Matrix<concepts::Promoted_Type<T, U>> result(*this);
-  result += other;
-  return result;
-}
+/* Membres - Operator overloads (Affectations) */
 
 template <concepts::Numeric T>
 template <concepts::Numeric U>
 Matrix<T>& Matrix<T>::operator+=(const Matrix<U>& other) {
   
   assert(get_shape() == other.get_shape() && "Unable to add matrices with different shapes");
-
   const auto& rhs = other.get_data();
   const size_t size{_data.size()};
   
@@ -112,22 +96,9 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<U>& other) {
 
 template <concepts::Numeric T>
 template <concepts::Numeric U>
-[[nodiscard]]
-Matrix<concepts::Promoted_Type<T, U>> Matrix<T>::operator-(const Matrix<U>& other) const {
-  
-  assert(get_shape() == other.get_shape() && "Unable to subtract matrices with different shapes");
-
-  Matrix<concepts::Promoted_Type<T, U>> result(*this);
-  result -= other;
-  return result;
-}
-
-template <concepts::Numeric T>
-template <concepts::Numeric U>
 Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
   
   assert(get_shape() == other.get_shape() && "Unable to subtract matrices with different shapes");
-
   const auto& rhs = other.get_data();
   const size_t size{_data.size()};
   
@@ -140,16 +111,6 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix<U>& other) {
 
 template <concepts::Numeric T>
 template <concepts::Numeric U>
-[[nodiscard]]
-Matrix<concepts::Promoted_Type<T, U>> Matrix<T>::operator*(
-  const U& scalar) const {
-  Matrix<concepts::Promoted_Type<T, U>> result(*this);
-  result *= scalar;
-  return result;
-}
-
-template <concepts::Numeric T>
-template <concepts::Numeric U>
 Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
   for (auto& value : _data) {
     value = static_cast<T>(value * scalar);
@@ -158,21 +119,35 @@ Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
   return *this;
 }
 
-template <concepts::Numeric T>
-template <concepts::Numeric U>
-[[nodiscard]]
-Matrix<concepts::Promoted_Type<T, U>> Matrix<T>::operator*(
-  const Matrix<U>& other) const {
-  
-  assert(_cols == other.get_rows() && "Unable to multiply matrices with incompatible shapes");
 
+/* Fonctions Libres - Operator overloads (Promotions) */
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator+(const Matrix<T>& lhs, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>> {
+  Matrix<concepts::Promoted_Type<T, U>> result(lhs);
+  result += rhs;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator-(const Matrix<T>& lhs, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>> {
+  Matrix<concepts::Promoted_Type<T, U>> result(lhs);
+  result -= rhs;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Matrix<T>& lhs, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>> {
+  
+  assert(lhs.get_cols() == rhs.get_rows() && "Unable to multiply matrices with incompatible shapes");
   using R = concepts::Promoted_Type<T, U>;
 
-  const size_t rows = _rows;
-  const size_t inner = _cols;
-  const size_t cols = other.get_cols();
-
-  const auto& rhs = other.get_data();
+  const size_t rows = lhs.get_rows();
+  const size_t inner = lhs.get_cols();
+  const size_t cols = rhs.get_cols();
+  const auto& lhs_data = lhs.get_data();
+  const auto& rhs_data = rhs.get_data();
+  
   std::vector<R> result_data(rows * cols, R{0});
   
   for (size_t i = 0; i < rows; ++i) {
@@ -180,54 +155,30 @@ Matrix<concepts::Promoted_Type<T, U>> Matrix<T>::operator*(
     const size_t i_cols_offset = i * cols;
     
     for (size_t k = 0; k < inner; ++k) {
-      const R lhs_val = static_cast<R>(_data[i_inner_offset + k]);
+      const R lhs_val = static_cast<R>(lhs_data[i_inner_offset + k]);
       const size_t k_cols_offset = k * cols;
 
       for (size_t j = 0; j < cols; ++j) {
         result_data[i_cols_offset + j] += 
-          lhs_val * static_cast<R>(rhs[k_cols_offset + j]);
+          lhs_val * static_cast<R>(rhs_data[k_cols_offset + j]);
       }
     }
   }
 
   return Matrix<R>(std::move(result_data), rows, cols);
 }
- 
-//template <matrix::Numeric T>
-//template <matrix::Numeric U>
-//[[nodiscard]]
-//matrix::PMatrix<T, U> Matrix<T>::operator*(
-//  const Matrix<U>& other) const {
-//
-//  if (_cols != other.get_rows()) {
-//    throw 
-//      std::invalid_argument(
-//        "Unable to multiply matrices with incompatible shapes");
-//  }
-//
-//  using R = matrix::promoted_type<T, U>;
-//
-//  const size_t rows = _rows;
-//  const size_t inner = _cols;
-//  const size_t cols = other.get_cols();
-//
-//  std::vector<R> result_data(rows * cols, R{});
-//
-//  std::mdspan lhs(_data.data(), rows, inner);
-//  std::mdspan rhs(other.get_data().data(), inner, cols);
-//  std::mdspan res(result_data.data(), rows, cols);
-//
-//  for (size_t i = 0; i < rows; ++i) {
-//    for (size_t k = 0; k < inner; ++k) {
-//      const R lhs_val = static_cast<R>(lhs_view(i, k));    
-//      for (size_t j = 0; j < cols; ++j) {
-//        res_view(i, j) += lhs * static_cast<R>(rhs(k, j));
-//      }
-//    }
-//  }
-//
-//  return Matrix<R>(std::move(result_data), rows, cols);
-//}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Matrix<T>& lhs, const U& scalar) -> Matrix<concepts::Promoted_Type<T, U>> {
+  Matrix<concepts::Promoted_Type<T, U>> result(lhs);
+  result *= scalar;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const T& scalar, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>> {
+  return rhs * scalar;
+}
 
 template <concepts::Numeric T, concepts::Numeric U>
 auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs) {
@@ -251,11 +202,9 @@ auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs) {
 template <concepts::Numeric T>
 struct std::formatter<Matrix<T>> {
   std::string element_spec{"{}"};
-  
   constexpr auto parse(std::format_parse_context& ctx) {
       auto it{ctx.begin()};
       auto end{ctx.end()};
-      
       if (it != end && *it != '}') {
         element_spec = "{:";
         while (it != end && *it != '}') {
@@ -308,7 +257,6 @@ struct std::formatter<Matrix<T>> {
             out, 
             element_spec, 
             std::make_format_args(data[row_offset + j]));
-            
         if (j + 1 < cols) {
           out = std::format_to(out, ", ");
         }
@@ -317,4 +265,4 @@ struct std::formatter<Matrix<T>> {
     }
     return std::format_to(out, "]\n");
   }
-}; 
+};

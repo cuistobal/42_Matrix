@@ -42,26 +42,10 @@ class Matrix {
     std::pair<size_t, size_t> get_shape() const noexcept;
 
     template <concepts::Numeric U>
-    [[nodiscard]]
-    Matrix<concepts::Promoted_Type<T, U>> operator+(const Matrix<U>& other) const;
-
-    template <concepts::Numeric U>
     Matrix<T>& operator+=(const Matrix<U>& other);
 
     template <concepts::Numeric U>
-    [[nodiscard]]
-    Matrix<concepts::Promoted_Type<T, U>> operator-(const Matrix<U>& other) const;
-
-    template <concepts::Numeric U>
     Matrix<T>& operator-=(const Matrix<U>& other);
-
-    template <concepts::Numeric U>
-    [[nodiscard]]
-    Matrix<concepts::Promoted_Type<T, U>> operator*(const Matrix<U>& other) const;
-
-    template <concepts::Numeric U>
-    [[nodiscard]]
-    Matrix<concepts::Promoted_Type<T, U>> operator*(const U& scalar) const;
 
     template <concepts::Numeric U>
     Matrix<T>& operator*=(const U& scalar);
@@ -81,6 +65,21 @@ auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs);
 
 template <concepts::Numeric T, concepts::Numeric U>
 auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs);
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator+(const Matrix<T>& lhs, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator-(const Matrix<T>& lhs, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Matrix<T>& lhs, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Matrix<T>& lhs, const U& scalar) -> Matrix<concepts::Promoted_Type<T, U>>;
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const T& scalar, const Matrix<U>& rhs) -> Matrix<concepts::Promoted_Type<T, U>>;
 
 template <typename T>
 Matrix(std::initializer_list<std::initializer_list<T>>) -> Matrix<T>;

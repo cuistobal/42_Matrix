@@ -21,10 +21,10 @@ template <concepts::Numeric T>
 template <concepts::Numeric U>
 Vector<T>::Vector(
   const Vector<U>& other) 
-  : _dimensions(other.get_dimensions()) {
-    _data = other.get_data()
+  : _dimensions(other.get_dimensions()),
+    _data(other.get_data()
       | std::views::transform([](const U& val) { return static_cast<T>(val); })
-      | std::ranges::to<std::vector<T>>();
+      | std::ranges::to<std::vector<T>>()) {
 }
 
 template <concepts::Numeric T>
@@ -37,22 +37,7 @@ const std::vector<T>& Vector<T>::get_data() const {
   return _data;
 }
 
-/* Operator overloads*/
-
-template <concepts::Numeric T> 
-template <concepts::Numeric U>
-Vector<concepts::Promoted_Type<T, U>> Vector<T>::operator+(
-  const Vector<U>& other) const {
-  
-  assert(get_dimensions() == other.get_dimensions() && "Unable to add vectors with different sizes");
-
-  Vector<concepts::Promoted_Type<T, U>> result(*this);
-  const auto& data{other.get_data()};
-  for (size_t i{0uz}; i < data.size(); ++i) {
-    result._data[i] += data[i];
-  }
-  return result;
-}
+/* Membres - Operator overloads (Affectations) */
 
 template <concepts::Numeric T> 
 template <concepts::Numeric U>
@@ -60,7 +45,6 @@ Vector<T>& Vector<T>::operator+=(
   const Vector<U>& other) {
   
   assert(get_dimensions() == other.get_dimensions() && "Unable to add vectors with different sizes");
-
   const auto& data{other.get_data()};
 
   for (size_t i{0uz}; i < data.size(); ++i) {
@@ -72,44 +56,76 @@ Vector<T>& Vector<T>::operator+=(
 
 template <concepts::Numeric T>
 template <concepts::Numeric U>
-Vector<concepts::Promoted_Type<T, U>> Vector<T>::operator-(
-  const Vector<U>& other) const {
+Vector<T>& Vector<T>::operator-=(
+  const Vector<U>& other) {
   
   assert(get_dimensions() == other.get_dimensions() && "Unable to subtract vectors with different sizes");
-
-  Vector<concepts::Promoted_Type<T, U>> result(*this);
   const auto& data{other.get_data()};
+
   for (size_t i{0uz}; i < data.size(); ++i) {
-    result._data[i] -= data[i];
+    _data[i] -= data[i];
   }
-  return result;
+
+  return *this;
 }
 
 template <concepts::Numeric T>
 template <concepts::Numeric U>
-Vector<concepts::Promoted_Type<T, U>> Vector<T>::operator*(
-  const Vector<U>& other) const {
+Vector<T>& Vector<T>::operator*=(
+  const Vector<U>& other) {
   
   assert(get_dimensions() == other.get_dimensions() && "Unable to multiply vectors with different sizes");
-
-  Vector<concepts::Promoted_Type<T, U>> result(*this);
   const auto& data{other.get_data()};
+
   for (size_t i{0uz}; i < data.size(); ++i) {
-    result._data[i] *= data[i];
+    _data[i] *= data[i];
   }
-  return result;
+
+  return *this;
 }
 
 template <concepts::Numeric T>
 template <concepts::Numeric U>
-Vector<concepts::Promoted_Type<T, U>> Vector<T>::operator*(
-  const U& scalar) const {
-  using R = concepts::Promoted_Type<T, U>;
-  std::vector<R> newData(_data.begin(), _data.end());
+Vector<T>& Vector<T>::operator*=(const U& scalar) {
   for (size_t i{0uz}; i < _data.size(); ++i) {
-    newData[i] *= scalar;
+    _data[i] *= scalar;
   }
-  return Vector<R>(newData);
+  return *this;
+}
+
+/* Fonctions Libres - Operator overloads (Promotions) */
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator+(const Vector<T>& lhs, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>> {
+  Vector<concepts::Promoted_Type<T, U>> result(lhs);
+  result += rhs;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator-(const Vector<T>& lhs, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>> {
+  Vector<concepts::Promoted_Type<T, U>> result(lhs);
+  result -= rhs;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Vector<T>& lhs, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>> {
+  Vector<concepts::Promoted_Type<T, U>> result(lhs);
+  result *= rhs;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const Vector<T>& lhs, const U& scalar) -> Vector<concepts::Promoted_Type<T, U>> {
+  Vector<concepts::Promoted_Type<T, U>> result(lhs);
+  result *= scalar;
+  return result;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+[[nodiscard]] auto operator*(const T& scalar, const Vector<U>& rhs) -> Vector<concepts::Promoted_Type<T, U>> {
+  return rhs * scalar;
 }
 
 /* Formatter */
@@ -117,7 +133,6 @@ Vector<concepts::Promoted_Type<T, U>> Vector<T>::operator*(
 template <concepts::Numeric T>
 struct std::formatter<Vector<T>> {
   std::string element_spec{"{}"};
-  
   constexpr auto parse(std::format_parse_context& ctx) {
     auto it = ctx.begin();
     auto end = ctx.end();

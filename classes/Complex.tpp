@@ -1,4 +1,4 @@
-template <complex::Numeric T>
+template <concepts::Numeric T>
 Complex<T>::Complex(
   const T& real,
   const T& imag) 
@@ -6,27 +6,25 @@ Complex<T>::Complex(
   _imag(imag) {
 }
 
-template <complex::Numeric T>
-template <complex::Numeric U>
+template <concepts::Numeric T>
+template <concepts::Numeric U>
 Complex<T>::Complex(
-  const Complex<U>& other) {
-  using R = complex::promoted_type<T, U>;
-
-  _real = static_cast<R>(other.get_real());
-  _imag = static_cast<R>(other.get_imag());
+  const Complex<U>& other) :
+  _real(static_cast<T>(other.get_real())),
+  _imag(static_cast<T>(other.get_imag())) {
 }
 
-template <complex::Numeric T>
+template <concepts::Numeric T>
 T Complex<T>::get_real() const {
-    return _real;
+  return _real;
 }
 
-template <complex::Numeric T>
+template <concepts::Numeric T>
 T Complex<T>::get_imag() const {
-    return _imag;
+  return _imag;
 }
 
-template <complex::Numeric T>
+template <concepts::Numeric T>
 struct std::formatter<Complex<T>> {
   std::string element_spec{"{}"};
 
