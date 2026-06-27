@@ -29,7 +29,7 @@ auto dot(
   using R = concepts::Promoted_Type<T, U>;
 
   auto dot_product = 
-    std::views::zip(lhs.get_data, rhs.get_data()) |
+    std::views::zip(lhs.get_data(), rhs.get_data()) |
     std::views::transform([](auto&& tuple){
       auto&& [rhs, lhs] = tuple;
       return rhs * lhs;});

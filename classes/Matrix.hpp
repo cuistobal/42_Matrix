@@ -50,6 +50,8 @@ class Matrix {
     template <concepts::Numeric U>
     Matrix<T>& operator*=(const U& scalar);
 
+    auto operator<=>(const Matrix<T>& other) const = default;
+
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& src) {
       return os << std::format("{}", src);
     }

@@ -28,7 +28,7 @@ template <concepts::Numeric T>
 struct std::formatter<Complex<T>> {
   std::string element_spec{"{}"};
 
-  constexpr auto aprse(std::format_parse_context& ctx) {
+  constexpr auto parse(std::format_parse_context& ctx) {
     auto it{ctx.begin()};
     auto end{ctx.end()};
     
@@ -47,7 +47,33 @@ struct std::formatter<Complex<T>> {
     T real{c.get_real()};
     T imag{c.get_imag()};
 
-    return std::format_to(out, "{} {}");
+    return std::format_to(out, "{} {}", real, imag);
   }
 
 };
+
+template <concepts::Numeric T, concepts::Numeric U>
+auto operator<=>(const Complex<T>& lhs, const Complex<U>& rhs) {
+  using Ordering = std::partial_ordering;
+
+  auto lhs_real = lhs.get_real();
+  auto rhs_real = rhs.get_real();
+
+  if (lhs_real != rhs_real) {
+    return lhs_real < rhs_real ? Ordering::less : Ordering::greater;
+  }
+
+  auto lhs_imag = lhs.get_imag();
+  auto rhs_imag = rhs.get_imag();
+
+  if (lhs_imag != rhs_imag) {
+    return lhs_imag < rhs_imag ? Ordering::less : Ordering::greater;
+  }
+
+  return Ordering::equivalent;
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+auto operator==(const Complex<T>& lhs, const Complex<U>& rhs) {
+  return lhs.get_real() == rhs.get_real() && lhs.get_imag() == rhs.get_imag();
+}

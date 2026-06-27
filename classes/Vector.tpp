@@ -128,6 +128,33 @@ template <concepts::Numeric T, concepts::Numeric U>
   return rhs * scalar;
 }
 
+template <concepts::Numeric T, concepts::Numeric U>
+auto operator<=>(const Vector<T>& lhs, const Vector<U>& rhs) {
+  auto cmp_dims = lhs.get_dimensions() <=> rhs.get_dimensions(); 
+
+  if (cmp_dims != 0) {
+    return cmp_dims;
+  }
+  
+  const auto& lhs_data = lhs.get_data();
+  const auto& rhs_data = rhs.get_data();
+
+  return std::lexicographical_compare_three_way(
+    lhs_data.begin(), lhs_data.end(),
+    rhs_data.begin(), rhs_data.end()
+  );
+}
+
+template <concepts::Numeric T, concepts::Numeric U>
+auto operator==(const Vector<T>& lhs, const Vector<U>& rhs) {
+  const auto& lhs_data = lhs.get_data();
+  const auto& rhs_data = rhs.get_data();
+
+  return 
+    lhs_data.size() == rhs_data.size() &&
+    std::ranges::equal(lhs_data, rhs_data);
+}
+
 /* Norms */
 
 // Manhattan norm
@@ -170,7 +197,7 @@ template <concepts::Numeric T>
   auto abs = _data |
     std::views::transform(
       [](auto&& val){
-        return std::abs(val);
+        return std::fabs(static_cast<std::float32_t>(val));
       }
     );
 

@@ -23,6 +23,7 @@ template <concepts::Numeric T, concepts::Numeric U>
       return linear_combination(lhs, 1.0f - t) + linear_combination(rhs, t);
     }
   );
+
   return Vector<R>{std::ranges::to<std::vector<R>>(interpolation)};
 }
 
@@ -39,5 +40,9 @@ template <concepts::Numeric T, concepts::Numeric U>
       auto&& [lhs, rhs] = tuple;
       return linear_combination(lhs, 1.0f - t) + linear_combination(rhs, t);
     });
-  return Matrix<R>{std::ranges::to<std::vector<R>>(interpolation)};
+
+  return Matrix<R>(
+    std::ranges::to<std::vector<R>>(interpolation),
+    u.get_rows(),
+    u.get_cols());
 }

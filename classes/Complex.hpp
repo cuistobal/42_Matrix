@@ -17,6 +17,8 @@ class Complex {
     T get_real() const;
     T get_imag() const;
 
+    auto operator <=>(const Complex<T>& other) const = default;
+
   private:
     T _real{};
     T _imag{};

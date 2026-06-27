@@ -182,19 +182,26 @@ template <concepts::Numeric T, concepts::Numeric U>
 
 template <concepts::Numeric T, concepts::Numeric U>
 auto operator<=>(const Matrix<T>& lhs, const Matrix<U>& rhs) {
-  if (auto cmp = lhs.get_rows() <=> rhs.get_rows(); cmp != 0) return cmp;
-  if (auto cmp = lhs.get_cols() <=> rhs.get_cols(); cmp != 0) return cmp;
-  return lhs.get_data() <=> rhs.get_data();
+  auto cmp_dims = lhs.get_dimensions() <=> rhs.get_dimensions(); 
+
+  if (cmp_dims != 0) {
+    return cmp_dims;
+  }
+  
+  const auto& lhs_data = lhs.get_data();
+  const auto& rhs_data = rhs.get_data();
+
+  return std::lexicographical_compare_three_way(
+    lhs_data.begin(), lhs_data.end(),
+    rhs_data.begin(), rhs_data.end()
+  );
 }
 
 template <concepts::Numeric T, concepts::Numeric U>
 auto operator==(const Matrix<T>& lhs, const Matrix<U>& rhs) {
-  if constexpr (std::same_as<T, U>) {
-    return lhs.get_rows() == rhs.get_rows() &&
-      lhs.get_cols() == rhs.get_cols() &&
-      lhs.get_data() == rhs.get_data();
-  }
-  return false;
+  return lhs.get_rows() == rhs.get_rows() &&
+    lhs.get_cols() == rhs.get_cols() &&
+    std::ranges::equal(lhs.get_data(), rhs.get_data());
 }
 
 /* Formatter */

@@ -23,7 +23,7 @@ template <concepts::Numeric T, concepts::Numeric U>
 
   for (size_t i{1uz}; i < scalars.size(); ++i) {
     assert(candidates[i].get_dimensions() == expected_size && "Candidate size mismatch");
-    ans += linear_combination(candidates[i], scalars[i]);
+    ans += candidates[i] * scalars[i];
   }
 
   return ans;

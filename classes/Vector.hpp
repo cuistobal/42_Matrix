@@ -33,6 +33,8 @@ class Vector {
 
     template <concepts::Numeric U>
     Vector<T>& operator*=(const U& scalar);
+ 
+    auto operator<=>(const Vector<T>& other) const = default;
 
     size_t get_dimensions() const;
     const std::vector<T>& get_data() const;
@@ -42,7 +44,7 @@ class Vector {
     std::float32_t norm_inf();
 
     friend std::ostream& operator<<(std::ostream& os, const Vector<T>& src) {
-      return os << src;
+      return os << std::format("{}", src);
     }
 
   private:
