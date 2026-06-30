@@ -125,7 +125,31 @@ Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
 template <concepts::Numeric T>
 [[nodiscard]] std::float32_t Matrix<T>::norm() const noexcept {
   std::float32_t n{0.0f};
-  return n;
+
+  auto abs = _data |
+    std::views::transform(
+      [](auto x){ 
+        return std::abs(x);
+      }
+    );
+
+  auto max = *std::ranges::max_element(abs);
+
+  auto norm = _data |
+    std::views::transform(
+      [max](T elem){
+        T scaled = elem / max;
+        return scaled * scaled; 
+      }
+    );
+
+  auto sum = 
+    std::ranges::fold_left(
+     norm, 
+     0.0, 
+     std::plus<T>());
+
+  return static_cast<std::float32_t>(max * std::sqrt(norm));
 }
 
 template <concepts::Numeric T>
