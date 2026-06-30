@@ -28,12 +28,12 @@ Vector<T>::Vector(
 }
 
 template <concepts::Numeric T>
-size_t Vector<T>::get_dimensions() const {
+[[nodiscard]] size_t Vector<T>::get_dimensions() const noexcept {
   return _dimensions;
 }
 
 template <concepts::Numeric T>
-const std::vector<T>& Vector<T>::get_data() const {
+[[nodiscard]] const std::vector<T>& Vector<T>::get_data() const noexcept {
   return _data;
 }
 
@@ -159,7 +159,7 @@ auto operator==(const Vector<T>& lhs, const Vector<U>& rhs) {
 
 // Manhattan norm
 template <concepts::Numeric T>
-[[nodiscard]] std::float32_t Vector<T>::norm_1() {
+[[nodiscard]] std::float32_t Vector<T>::norm_1() const noexcept {
   auto norm = _data |
     std::views::transform(
       [](auto&& val){
@@ -172,7 +172,7 @@ template <concepts::Numeric T>
 
 // Euclidian norm
 template <concepts::Numeric T>
-[[nodiscard]] std::float32_t Vector<T>::norm() {
+[[nodiscard]] std::float32_t Vector<T>::norm() const noexcept {
 
   auto norm = _data |
     std::views::transform(
@@ -193,7 +193,7 @@ template <concepts::Numeric T>
 
 // Supremum norm
 template <concepts::Numeric T>
-[[nodiscard]] std::float32_t Vector<T>::norm_inf() {
+[[nodiscard]] std::float32_t Vector<T>::norm_inf() const noexcept {
   auto abs = _data |
     std::views::transform(
       [](auto&& val){

@@ -36,11 +36,6 @@ class Matrix {
 
     ~Matrix() = default;
 
-    size_t get_rows() const noexcept;
-    size_t get_cols() const noexcept;
-    const std::vector<T>& get_data() const noexcept;
-    std::pair<size_t, size_t> get_shape() const noexcept;
-
     template <concepts::Numeric U>
     Matrix<T>& operator+=(const Matrix<U>& other);
 
@@ -51,6 +46,18 @@ class Matrix {
     Matrix<T>& operator*=(const U& scalar);
 
     auto operator<=>(const Matrix<T>& other) const = default;
+
+    [[nodiscard]] size_t get_rows() const noexcept;
+    [[nodiscard]] size_t get_cols() const noexcept;
+    [[nodiscard]] const std::vector<T>& get_data() const noexcept;
+    [[nodiscard]] std::pair<size_t, size_t> get_shape() const noexcept;
+
+
+    [[nodiscard]] std::float32_t norm() const noexcept;
+    [[nodiscard]] std::float32_t norm_1() const noexcept;
+    [[nodiscard]] std::float32_t norm_inf() const noexcept;
+
+    [[nodiscard]] Matrix<T> row_echelon_form() const noexcept;
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& src) {
       return os << std::format("{}", src);

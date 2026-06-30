@@ -58,22 +58,22 @@ Matrix<T>::Matrix(
 }
 
 template <concepts::Numeric T>
-size_t Matrix<T>::get_rows() const noexcept {
+[[nodiscard]] size_t Matrix<T>::get_rows() const noexcept {
     return _rows;
 }
 
 template <concepts::Numeric T>
-size_t Matrix<T>::get_cols() const noexcept {
+[[nodiscard]] size_t Matrix<T>::get_cols() const noexcept {
     return _cols;
 }
 
 template<concepts::Numeric T>
-std::pair<size_t, size_t> Matrix<T>::get_shape() const noexcept {
+[[nodiscard]] std::pair<size_t, size_t> Matrix<T>::get_shape() const noexcept {
   return {_rows, _cols};
 }
 
 template <concepts::Numeric T>
-const std::vector<T>& Matrix<T>::get_data() const noexcept {
+[[nodiscard]] const std::vector<T>& Matrix<T>::get_data() const noexcept {
     return _data;
 }
 
@@ -119,6 +119,64 @@ Matrix<T>& Matrix<T>::operator*=(const U& scalar) {
   return *this;
 }
 
+
+/* Norms */
+
+template <concepts::Numeric T>
+[[nodiscard]] std::float32_t Matrix<T>::norm() const noexcept {
+  std::float32_t n{0.0f};
+  return n;
+}
+
+template <concepts::Numeric T>
+[[nodiscard]] std::float32_t Matrix<T>::norm_1() const noexcept {
+
+  std::vector<T> norms(_cols, 0);
+
+  for (size_t crow{0uz}; crow < _rows; ++crow) {
+    size_t offset{crow * _cols};
+    for (size_t ccol{0uz}; ccol < _cols; ++ccol) {
+      norms[ccol] += std::abs(_data[offset + ccol]);
+    }
+  }
+
+  return static_cast<std::float32_t>(*std::ranges::max_element(norms));
+}
+
+template <concepts::Numeric T>
+[[nodiscard]] std::float32_t Matrix<T>::norm_inf() const noexcept {
+
+  auto sum = _data |
+    std::views::chunk(_cols) |
+    std::views::transform(
+      [](auto row){
+        return std::ranges::fold_left(row, 0.0, 
+          [](double sum, double elem){
+            return sum + elem;
+        }
+      );
+    }
+  );
+
+  return static_cast<std::float32_t>(std::ranges::max_element(sum));
+}
+
+/* Row echelon form */
+template <concepts::Numeric T> 
+[[nodiscard]] Matrix<T> Matrix<T>::row_echelon_form() const noexcept {
+
+  std::vector<T> ref_data{_data};
+
+  for (size_t r{0uz}; r < _rows; ++r) {
+
+    auto rstart = ref_data.begin() + (_cols * r);
+    auto rview = std::ranges::subrange(rstart, rstart + _cols);
+
+  }
+
+
+  return Matrix<T> {std::move(ref_data), _rows, _cols};
+}
 
 /* Fonctions Libres - Operator overloads (Promotions) */
 

@@ -36,12 +36,12 @@ class Vector {
  
     auto operator<=>(const Vector<T>& other) const = default;
 
-    size_t get_dimensions() const;
-    const std::vector<T>& get_data() const;
+    [[nodiscard]] size_t get_dimensions() const noexcept;
+    [[nodiscard]] const std::vector<T>& get_data() const noexcept;
 
-    std::float32_t norm();
-    std::float32_t norm_1();
-    std::float32_t norm_inf();
+    [[nodiscard]] std::float32_t norm() const noexcept;
+    [[nodiscard]] std::float32_t norm_1() const noexcept;
+    [[nodiscard]] std::float32_t norm_inf() const noexcept;
 
     friend std::ostream& operator<<(std::ostream& os, const Vector<T>& src) {
       return os << std::format("{}", src);
