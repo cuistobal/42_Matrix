@@ -78,6 +78,10 @@ template <concepts::Numeric T, concepts::Numeric U>
 template <concepts::Numeric T, concepts::Numeric U>
 [[nodiscard]] auto dot(const Matrix<T>& lhs, const Matrix<U>& rhs) -> concepts::Promoted_Type<T, U>;
 
+// Cross products
+template<concepts::Numeric T>
+Vector<T> cross_product(const Vector<T>& lhs, const Vector<T>& rhs);
+
 
 template <concepts::Numeric T, concepts::Numeric U>
 [[nodiscard]] std::float32_t angle_cos(Vector<T>& lhs, Vector<U>& rhs);
