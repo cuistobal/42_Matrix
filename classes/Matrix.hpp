@@ -59,6 +59,8 @@ class Matrix {
 
     [[nodiscard]] std::float32_t determinant() const noexcept;
 
+    [[nodiscard]] T trace() const noexcept;
+
     [[nodiscard]] Matrix<T> row_echelon_form() const noexcept;
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& src) {

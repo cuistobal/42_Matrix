@@ -188,109 +188,74 @@ template <concepts::Numeric T>
 
 /* Row echelon form */
 
-//template <concepts::Numeric T> 
-//[[nodiscard]] Matrix<T> Matrix<T>::row_echelon_form() const noexcept {
-//
-//  std::vector<T> data{_data};
-//
-//  for (size_t r{0uz}; r < (_rows - 1); ++r) {
-//
-//    // Find a valid pivot
-//    size_t pindex{r * _cols + r}, roff{pindex};
-//    double pivot{static_cast<double>(data[pindex]});
-//    for (size_t i{1uz}; i < _rows; ++i) {
-//      roff += _cols;
-//      if (data[np]) {
-//        pivot = static_cast<double>(data[np]);
-//        std::swap_ranges(data[pindex], data[pindex + _cols], data[np]);
-//      }
-//    }
-//
-//    // Restablish the original offset value;
-//    roff = pindex;
-//
-//    // Reduce subsequent rows
-//    for (size_t i{r + 1}; i < _rows; ++i) {
-//
-//      roff += _cols;
-//      double coef{static_cast<double>(data[roff] / pivot};
-//
-//      auto sit = data.begin() + roff;
-//      auto eit = sit + _cols;
-//
-//      std::transform(sit, eit, sit, 
-//        [](T val){
-//          return static_cast<double>(val) - (coef;
-//          }); 
-//
-//  }
-//
-//
-//  return Matrix<T> {std::move(data), _rows, _cols};
-//}
-
+// A modifier pout tenir compte de l effet des row swap sur le determinant
 template <concepts::Numeric T> 
 [[nodiscard]] Matrix<T> Matrix<T>::row_echelon_form() const noexcept {
-    // On copie les données pour travailler en place
-    std::vector<T> data = _data; 
 
-    for (size_t r = 0; r < (_rows - 1); ++r) {
-        size_t pivot_row = r;
-        
-        // 1. Recherche du pivot (sécurisée)
-        while (pivot_row < _rows && data[pivot_row * _cols + r] == T{}) {
-            ++pivot_row;
+  std::vector<T> data = _data; 
+
+  for (size_t r{0uz}; r < (_rows - 1); ++r) {
+      
+      size_t prow{r}, roff{r * _cols}, poff{roff + r};
+
+      while (prow < _rows && !data[prow * _cols + r]) {
+        ++prow;
+      }
+
+      if (prow == _rows) {
+        continue;
+      } else if (prow != r) {
+        auto src_it = data.begin() + roff;
+        auto dst_it = data.begin() + prow * _cols;
+        std::swap_ranges(src_it, src_it + _cols, dst_it);
+      }
+
+      size_t trow{roff};
+      double pivot{static_cast<double>(data[poff])};
+      for (size_t i{r + 1}; i < _rows; ++i) {
+        trow += _cols;
+        double factor{static_cast<double>(data[trow + r] / pivot)};
+
+        for (size_t c{r}; c < _cols; ++c) {
+          data[trow + c] -= factor * data[roff + c];
         }
+      }
+  }
 
-        // Si aucun pivot non nul n'est trouvé, on passe à la colonne suivante
-        if (pivot_row == _rows) continue; 
-
-        // Si le pivot est sur une autre ligne, on échange les lignes
-        if (pivot_row != r) {
-            auto src_it = data.begin() + r * _cols;
-            auto dst_it = data.begin() + pivot_row * _cols;
-            std::swap_ranges(src_it, src_it + _cols, dst_it);
-        }
-
-        T pivot = data[r * _cols + r];
-
-        // 2. Réduction des lignes suivantes
-        for (size_t i = r + 1; i < _rows; ++i) {
-            size_t target_row_start = i * _cols;
-            size_t pivot_row_start = r * _cols;
-            
-            T factor = data[target_row_start + r] / pivot;
-
-            // On soustrait (factor * ligne_pivot) à la ligne actuelle
-            for (size_t c = r; c < _cols; ++c) {
-                data[target_row_start + c] -= factor * data[pivot_row_start + c];
-            }
-        }
-    }
-
-    // Hypothèse : ton constructeur de Matrix accepte le vecteur et les dimensions
-    return Matrix<T>(std::move(data), _rows, _cols);
+  return Matrix<T>(std::move(data), _rows, _cols);
 }
 
 /* Determinant */
 
 template <concepts::Numeric T>
 [[nodiscard]] std::float32_t Matrix<T>::determinant() const noexcept {
-  std::float32_t det{0.0f};
 
-  // Start by getting an upper triangular matrix
-  Matrix<T> ref{row_echelon_form};
+  assert(_rows == _cols && "Can't find the determinant of a non square matrix");
 
-  // Return the sum of it's diagonaled values
+  auto diagonal_indices = std::views::iota(0uz, _rows);
 
-//  auto ret = ref |
-//  std::views::chunk(_rows) |
-//  std::views::fold_left(
-//    [](auto row){
-//      return row[c];
-//    });
+  auto diagonal_values = 
+    diagonal_indices | 
+    std::views::transform(
+      [&](size_t i) {
+      return static_cast<float>(_data[i * _cols + i]);
+    });
 
-  return det;
+  return std::ranges::fold_left(diagonal_values, 1.0f, std::multiplies<float>());
+}
+
+/* Trace*/
+template<concepts::Numeric T>
+[[nodiscard]] T Matrix<T>::trace() const noexcept {
+
+  assert(_rows == _cols && "Trace of a non square matrix is undefined behavior");
+
+  T trace{0};
+  
+  for (size_t i{0uz}; i < _rows; ++i) {
+    trace += _data[i * _cols + i];
+  }
+  return trace;
 }
 
 /* Fonctions Libres - Operator overloads (Promotions) */
